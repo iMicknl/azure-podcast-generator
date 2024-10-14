@@ -1,12 +1,11 @@
 """Module for Document Processing utils."""
 
+import os
+
+import streamlit as st
 from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.ai.documentintelligence.models import AnalyzeDocumentRequest, ContentFormat
-
-import os
 from azure.core.credentials import AzureKeyCredential
-import streamlit as st
-
 from utils.identity import get_azure_credential
 
 

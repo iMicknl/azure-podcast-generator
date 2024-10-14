@@ -1,14 +1,14 @@
 """Streamlit app for Azure Podcast Generator"""
 
-from utils.speech import text_to_speech
-import streamlit as st
-from utils.llm import document_to_podcast_script, get_encoding
-from utils.document import document_to_markdown
-from dotenv import load_dotenv, find_dotenv
 import logging
 import os
 
-# TODO use managed identities for application
+import streamlit as st
+from dotenv import find_dotenv, load_dotenv
+from utils.document import document_to_markdown
+from utils.llm import document_to_podcast_script, get_encoding
+from utils.speech import text_to_speech
+
 # TODO user configurable prompts
 
 logger = logging.getLogger(__name__)

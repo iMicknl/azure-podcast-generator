@@ -1,7 +1,8 @@
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-from azure.core.credentials import AccessToken
 from datetime import timedelta
+
 import streamlit as st
+from azure.core.credentials import AccessToken
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 
 @st.cache_resource

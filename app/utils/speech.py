@@ -1,8 +1,8 @@
 """Module for audio utils."""
 
-import azure.cognitiveservices.speech as speechsdk
 import os
 
+import azure.cognitiveservices.speech as speechsdk
 from utils.identity import get_speech_token
 
 
@@ -39,11 +39,13 @@ def text_to_speech(ssml) -> bytes:
 
     elif result.reason == speechsdk.ResultReason.Canceled:
         cancellation_details = result.cancellation_details
-        print("Speech synthesis canceled: {}".format(cancellation_details.reason))
-        if cancellation_details.reason == speechsdk.CancellationReason.Error:
-            if cancellation_details.error_details:
-                print("Error details: {}".format(cancellation_details.error_details))
+        print(f"Speech synthesis canceled: {cancellation_details.reason}")
+        if (
+            cancellation_details.reason == speechsdk.CancellationReason.Error
+            and cancellation_details.error_details
+        ):
+            print(f"Error details: {cancellation_details.error_details}")
 
-        raise Exception("Error details: {}".format(cancellation_details.error_details))
+        raise Exception(f"Error details: {cancellation_details.error_details}")
 
-    raise Exception("Unknown exit reason: {}".format(result.reason))
+    raise Exception(f"Unknown exit reason: {result.reason}")
