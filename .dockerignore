@@ -1,0 +1,6 @@
+.devcontainer
+.git
+.github
+.ruff_cache
+.venv
+.env

@@ -1,0 +1,19 @@
+[project]
+name = "azure-podcast-generator"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "azure-ai-documentintelligence>=1.0.0b4",
+    "azure-cognitiveservices-speech>=1.41.1",
+    "openai>=1.51.2",
+    "python-dotenv>=1.0.1",
+    "streamlit>=1.39.0",
+    "tiktoken>=0.8.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.6.9",
+]
