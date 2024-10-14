@@ -5,6 +5,8 @@ import os
 import tiktoken
 import streamlit as st
 
+from utils.identity import get_token_provider
+
 PROMPT = """
         Create a conversational, engaging podcast script named '{title}' between two hosts from the input text. Use informal language like haha, wow etc. and keep it engaging.
         Think step by step, grasp the key points of the paper, and explain them in a conversational tone, at the end, summarize. 
@@ -20,11 +22,18 @@ PROMPT = """
 def document_to_podcast_script(document: str, title: str = "AI in Action") -> str:
     """Get LLM response."""
 
-    client = AzureOpenAI(
-        api_key=os.getenv("AZURE_OPENAI_KEY"),
-        api_version="2024-09-01-preview",
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-    )
+    if os.getenv("AZURE_OPENAI_KEY"):
+        client = AzureOpenAI(
+            api_key=os.getenv("AZURE_OPENAI_KEY"),
+            api_version="2024-09-01-preview",
+            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+        )
+    else:
+        client = AzureOpenAI(
+            api_key=os.getenv("AZURE_OPENAI_KEY"),
+            api_version="2024-09-01-preview",
+            azure_ad_token_provider=get_token_provider(),
+        )
 
     chat_completion = client.chat.completions.create(
         messages=[

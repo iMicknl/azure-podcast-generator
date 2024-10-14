@@ -3,14 +3,23 @@
 import azure.cognitiveservices.speech as speechsdk
 import os
 
+from utils.identity import get_speech_token
+
 
 def text_to_speech(ssml) -> bytes:
     """Use Azure Speech Service and convert SSML to audio bytes."""
 
-    speech_config = speechsdk.SpeechConfig(
-        subscription=os.environ["AZURE_SPEECH_KEY"],
-        region=os.environ["AZURE_SPEECH_REGION"],
-    )
+    if os.getenv("AZURE_SPEECH_KEY"):
+        speech_config = speechsdk.SpeechConfig(
+            subscription=os.environ["AZURE_SPEECH_KEY"],
+            region=os.environ["AZURE_SPEECH_REGION"],
+        )
+    else:
+        speech_config = speechsdk.SpeechConfig(
+            subscription=get_speech_token(os.environ["AZURE_SPEECH_RESOURCE_ID"]),
+            region=os.environ["AZURE_SPEECH_REGION"],
+        )
+
     audio_config = None  # for in-memory audio stream
 
     speech_config.set_speech_synthesis_output_format(

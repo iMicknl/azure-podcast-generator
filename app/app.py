@@ -1,5 +1,6 @@
 """Streamlit app for Azure Podcast Generator"""
 
+from utils.identity import get_token
 from utils.speech import text_to_speech
 import streamlit as st
 from utils.llm import document_to_podcast_script, get_encoding
@@ -35,6 +36,8 @@ final_audio = None
 
 # Podcast title input
 podcast_title = st.text_input("Podcast Title", value="AI in Action")
+
+print(get_token())
 
 # File upload
 uploaded_file = st.file_uploader(
