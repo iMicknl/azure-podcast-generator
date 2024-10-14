@@ -6,6 +6,7 @@ import os
 
 def text_to_speech(ssml) -> bytes:
     """Use Azure Speech Service and convert SSML to audio bytes."""
+
     speech_config = speechsdk.SpeechConfig(
         subscription=os.environ["AZURE_SPEECH_KEY"],
         region=os.environ["AZURE_SPEECH_REGION"],
@@ -35,3 +36,5 @@ def text_to_speech(ssml) -> bytes:
                 print("Error details: {}".format(cancellation_details.error_details))
 
         raise Exception("Error details: {}".format(cancellation_details.error_details))
+
+    raise Exception("Unknown exit reason: {}".format(result.reason))
