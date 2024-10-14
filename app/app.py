@@ -1,17 +1,17 @@
+"""Streamlit app for Azure Podcast Generator"""
+
 from utils.speech import text_to_speech
 import streamlit as st
-from utils.llm import document_to_podcast_script
+from utils.llm import document_to_podcast_script, get_encoding
 from utils.document import document_to_markdown
 from dotenv import load_dotenv, find_dotenv
 import logging
-import tiktoken
 import os
 
-# TODO use managed identities
+# TODO use managed identities for application
+# TODO user configurable prompts
 
 logger = logging.getLogger(__name__)
-
-encoding = tiktoken.encoding_for_model("gpt-4o")
 
 st.set_page_config(
     page_title="Azure Podcast Generator",
@@ -26,8 +26,10 @@ st.write(
     "Generate an engaging podcast based on your document using Azure OpenAI and Azure Speech."
 )
 
-st.info("Generative AI is used to generate a podcast script, thus fabrication / hallucination may occur. Always check your podcast script for inconsistencies prior to publishing.", icon="ℹ️")
-
+st.info(
+    "Generative AI may produce inaccuracies in podcast scripts. Always review for inconsistencies before publishing.",
+    icon="ℹ️",
+)
 
 final_audio = None
 
@@ -56,6 +58,8 @@ if uploaded_file:
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ]:
             document = document_to_markdown(bytes_data)
+        else:
+            document = bytes_data.decode("utf-8")
 
         logger.info(
             f"Processing document: {uploaded_file.name}, type: {uploaded_file.type}"
@@ -67,7 +71,7 @@ if uploaded_file:
             expanded=False,
         )
 
-        num_tokens = len(encoding.encode(document))
+        num_tokens = len(get_encoding().encode(document))
         logger.info(f"Number of tokens: {num_tokens}")
 
         # Convert input document to podcast script
@@ -93,6 +97,10 @@ if final_audio:
 
 # TODO Calculate costs of end to end solution
 # st.write("Total podcast costs: $0.00")
+
+# Footer
+st.divider()
+st.caption("Created by Mick Vleeshouwer.")
 
 if __name__ == "__main__":
     load_dotenv(find_dotenv())

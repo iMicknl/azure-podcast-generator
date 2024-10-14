@@ -2,6 +2,8 @@
 
 from openai import AzureOpenAI
 import os
+import tiktoken
+import streamlit as st
 
 PROMPT = """
         Create a conversational, engaging podcast script named 'AI unboxed' between two hosts from the input text. Use informal language like haha, wow etc. and keep it engaging.
@@ -43,3 +45,11 @@ def document_to_podcast_script(document: str) -> str:
     message = chat_completion.choices[0].message.content
 
     return message
+
+
+@st.cache_resource
+def get_encoding():
+    """Get TikToken."""
+    encoding = tiktoken.encoding_for_model("gpt-4o")
+
+    return encoding

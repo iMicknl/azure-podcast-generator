@@ -5,9 +5,11 @@ from azure.ai.documentintelligence.models import AnalyzeDocumentRequest, Content
 
 import os
 from azure.core.credentials import AzureKeyCredential
+import streamlit as st
 
 
-def document_to_markdown(file: bytes):
+@st.cache_data
+def document_to_markdown(file: bytes) -> str:
     document_request = AnalyzeDocumentRequest(bytes_source=file)
 
     doc_client = DocumentIntelligenceClient(
