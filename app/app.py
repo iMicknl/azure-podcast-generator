@@ -103,7 +103,6 @@ if final_audio:
     st.audio(audio, format="audio/wav")
 
 
-
 # Footer
 st.divider()
 st.caption("Created by Mick Vleeshouwer.")
