@@ -6,7 +6,7 @@ import tiktoken
 import streamlit as st
 
 PROMPT = """
-        Create a conversational, engaging podcast script named 'AI unboxed' between two hosts from the input text. Use informal language like haha, wow etc. and keep it engaging.
+        Create a conversational, engaging podcast script named '{title}' between two hosts from the input text. Use informal language like haha, wow etc. and keep it engaging.
         Think step by step, grasp the key points of the paper, and explain them in a conversational tone, at the end, summarize. 
         Output into SSML format like below, please don't change voice name.
 
@@ -17,7 +17,7 @@ PROMPT = """
 """
 
 
-def document_to_podcast_script(document: str) -> str:
+def document_to_podcast_script(document: str, title: str = "AI in Action") -> str:
     """Get LLM response."""
 
     client = AzureOpenAI(
@@ -30,7 +30,7 @@ def document_to_podcast_script(document: str) -> str:
         messages=[
             {
                 "role": "system",
-                "content": PROMPT,
+                "content": PROMPT.format(title=title),
             },
             # Wrap the document in <documents> tag for Prompt Shield Indirect attacks
             # https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cindirect%2Cpython-new#embedding-documents-in-your-prompt
@@ -40,6 +40,7 @@ def document_to_podcast_script(document: str) -> str:
             },
         ],
         model="gpt-4o",
+        temperature=0.7,
     )
 
     message = chat_completion.choices[0].message.content

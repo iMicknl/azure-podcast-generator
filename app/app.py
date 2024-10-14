@@ -33,6 +33,9 @@ st.info(
 
 final_audio = None
 
+# Podcast title input
+podcast_title = st.text_input("Podcast Title", value="AI in Action")
+
 # File upload
 uploaded_file = st.file_uploader(
     "Upload your document",
@@ -75,7 +78,9 @@ if uploaded_file:
         logger.info(f"Number of tokens: {num_tokens}")
 
         # Convert input document to podcast script
-        podcast_script = document_to_podcast_script(document)
+        podcast_script = document_to_podcast_script(
+            document=document, title=podcast_title
+        )
 
         # TODO Calculate approx max tokens based on token lenght
 

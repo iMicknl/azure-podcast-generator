@@ -1,3 +1,7 @@
+"""Constants for the app"""
+
+# TODO: Retrieve voice list from tts.speech.microsoft.com/cognitiveservices/voices/list
+
 AZURE_HD_VOICES = {
     "de-DE-Seraphina": "de-DE-Seraphina:DragonHDLatestNeural",
     "en-US-Andrew": "en-US-Andrew:DragonHDLatestNeural",

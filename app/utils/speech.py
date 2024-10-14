@@ -3,10 +3,9 @@
 import azure.cognitiveservices.speech as speechsdk
 import os
 
-# TODO: Retrieve voice list from tts.speech.microsoft.com/cognitiveservices/voices/list
-
 
 def text_to_speech(ssml) -> bytes:
+    """Use Azure Speech Service and convert SSML to audio bytes."""
     speech_config = speechsdk.SpeechConfig(
         subscription=os.environ["AZURE_SPEECH_KEY"],
         region=os.environ["AZURE_SPEECH_REGION"],
