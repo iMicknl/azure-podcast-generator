@@ -95,13 +95,14 @@ if uploaded_file:
         final_audio = True
 
         status.update(label="Finished", state="complete", expanded=False)
+        # TODO Calculate costs of end to end solution
+        st.write("Total podcast costs: $0.00")
 
 # Show audio player
 if final_audio:
     st.audio(audio, format="audio/wav")
 
-# TODO Calculate costs of end to end solution
-# st.write("Total podcast costs: $0.00")
+
 
 # Footer
 st.divider()
