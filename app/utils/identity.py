@@ -12,6 +12,7 @@ def get_azure_credential():
 @st.cache_resource
 def get_token_provider():
     """Get Azure Token Provider."""
+
     token_provider = get_bearer_token_provider(
         get_azure_credential(), "https://cognitiveservices.azure.com/.default"
     )
@@ -25,6 +26,7 @@ def get_access_token(
     scope: str = "https://cognitiveservices.azure.com/.default",
 ) -> AccessToken:
     """Get Microsoft Entra access token for scope."""
+
     token_credential = get_azure_credential()
     token = token_credential.get_token(scope)
 

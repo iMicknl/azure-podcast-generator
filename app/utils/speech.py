@@ -16,11 +16,11 @@ def text_to_speech(ssml) -> bytes:
         )
     else:
         speech_config = speechsdk.SpeechConfig(
-            subscription=get_speech_token(os.environ["AZURE_SPEECH_RESOURCE_ID"]),
+            auth_token=get_speech_token(os.environ["AZURE_SPEECH_RESOURCE_ID"]),
             region=os.environ["AZURE_SPEECH_REGION"],
         )
 
-    audio_config = None  # for in-memory audio stream
+    audio_config = None  # enable in-memory audio stream
 
     speech_config.set_speech_synthesis_output_format(
         speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm
