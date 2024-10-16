@@ -46,7 +46,7 @@ Create a highly engaging podcast script named '{title}' between two people based
 - Ensure the conversation is coherent and follows a logical progression.
 - Adapt the style and tone based on the document's content and podcast title.
 - Think step by step, grasp the key points of the document / paper, and explain them in a conversational tone.
-- Make sure the conversation will take about 5 minutes to read out loud.
+- Make sure the conversation will take about 10 minutes to read out loud. It is a detailed podcast.
 """.strip()
 
 JSON_SCHEMA = {

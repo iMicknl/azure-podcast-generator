@@ -34,19 +34,21 @@ st.info(
 )
 
 final_audio = None
+form = st.empty()
+form_container = form.container()
 
 # Podcast title input
-podcast_title = st.text_input("Podcast Title", value="AI in Action")
+podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
 
 # File upload
-uploaded_file = st.file_uploader(
+uploaded_file = form_container.file_uploader(
     "Upload your document",
     accept_multiple_files=False,
     type=["pdf", "docx", "pptx", "txt", "md"],
 )
 
-# Advanced Settings popover
-with st.expander("Advanced options", expanded=False):
+# Advanced options expander
+with form_container.expander("Advanced options", expanded=False):
     col1, col2 = st.columns(2)
 
     # Voice 1 select box
@@ -65,33 +67,17 @@ with st.expander("Advanced options", expanded=False):
         key="voice_2",
     )
 
-    # col3, col4 = st.columns(2)
-
-    # # Tone select slider
-    # tone = col3.select_slider(
-    #     "Tone",
-    #     options=["Formal", "Neutral", "Informal"],
-    #     value="Neutral",
-    # )
-
-    # # Length select box
-    # length = col4.select_slider(
-    #     "Length",
-    #     options=["Short (~1 min)", "Medium (~2 min)", "Long (~3 min)"],
-    #     value="Medium (~2 min)",
-    # )
-
 # Submit button
-submit = st.empty()
-generate_podcast = submit.button(
+generate_podcast = form_container.button(
     "Generate Podcast", type="primary", disabled=not uploaded_file
 )
 
 if uploaded_file and generate_podcast:
     bytes_data = uploaded_file.read()
-    submit.empty()
+    form.empty()
 
-    with st.status(
+    status_container = st.empty()
+    with status_container.status(
         "Processing document with Azure Document Intelligence...", expanded=False
     ) as status:
         LOGGER.info(
@@ -133,13 +119,12 @@ if uploaded_file and generate_podcast:
             voice_2=voice_2,
         )
 
-        st.markdown("### Podcast script:")
         podcast_script = podcast_response.podcast["script"]
         for item in podcast_script:
             st.markdown(f"**{item['name']}**: {item['message']}")
 
         status.update(
-            label="Generate podcast using Azure Speech (HD voices)...",
+            label="Generating podcast using Azure Speech (HD voices)...",
             state="running",
             expanded=False,
         )
@@ -167,7 +152,27 @@ if uploaded_file and generate_podcast:
             characters=sum(len(item["message"]) for item in podcast_script)
         )
 
-        st.markdown("### Costs")
+        status.update(label="Finished", state="complete", expanded=False)
+        status.empty()
+        final_audio = True
+
+
+# Display audio player after generation
+if final_audio:
+    status_container.empty()
+
+    # Create three tabs
+    audio_tab, transcript_tab, costs_tab = st.tabs(["Audio", "Transcript", "Costs"])
+
+    with audio_tab:
+        st.audio(audio, format="audio/wav")
+
+    with transcript_tab:
+        podcast_script = podcast_response.podcast["script"]
+        for item in podcast_script:
+            st.markdown(f"**{item['name']}**: {item['message']}")
+
+    with costs_tab:
         st.markdown(
             f"**Azure: Document Intelligence**: ${azure_document_intelligence_costs:.2f}"
         )
@@ -176,14 +181,6 @@ if uploaded_file and generate_podcast:
         st.markdown(
             f"**Total costs**: ${(azure_ai_speech_costs + azure_openai_costs + azure_document_intelligence_costs):.2f}"
         )
-
-        final_audio = True
-        status.update(label="Finished", state="complete", expanded=False)
-
-# Display audio player after generation
-if final_audio:
-    st.audio(audio, format="audio/wav")
-
 
 # Footer
 st.divider()
