@@ -82,17 +82,14 @@ with st.expander("Advanced options", expanded=False):
     # )
 
 # Submit button
-generate_podcast = st.button(
+submit = st.empty()
+generate_podcast = submit.button(
     "Generate Podcast", type="primary", disabled=not uploaded_file
 )
 
-if generate_podcast:
-    st.session_state["generate_podcast_disabled"] = True
-else:
-    st.session_state["generate_podcast_disabled"] = False
-
 if uploaded_file and generate_podcast:
     bytes_data = uploaded_file.read()
+    submit.empty()
 
     with st.status(
         "Processing document with Azure Document Intelligence...", expanded=False
