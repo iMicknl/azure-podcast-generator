@@ -1,0 +1,38 @@
+[project]
+name = "azure-podcast-generator"
+version = "0.1.0"
+description = "Generate an engaging podcast based on your document using Azure OpenAI and Azure Speech."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "azure-ai-documentintelligence>=1.0.0b4",
+    "azure-cognitiveservices-speech>=1.41.1",
+    "azure-identity>=1.19.0",
+    "openai>=1.51.2",
+    "python-dotenv>=1.0.1",
+    "streamlit>=1.39.0",
+    "tiktoken>=0.8.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pre-commit>=4.0.1",
+    "ruff>=0.6.9",
+]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+ignore = ["E501"] # Line too long
