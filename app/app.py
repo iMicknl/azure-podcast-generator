@@ -141,7 +141,9 @@ if final_audio:
 
 # Footer
 st.divider()
-st.caption("Created by [Mick Vleeshouwer](https://github.com/imicknl).")
+st.caption(
+    "Created by [Mick Vleeshouwer](https://github.com/imicknl). The source code is available on [GitHub](https://github.com/iMicknl/azure-podcast-generator), contributions are welcome."
+)
 
 if __name__ == "__main__":
     load_dotenv(find_dotenv())
