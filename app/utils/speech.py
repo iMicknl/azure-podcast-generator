@@ -3,7 +3,7 @@
 import os
 
 import azure.cognitiveservices.speech as speechsdk
-from const import LOGGER
+from const import AZURE_HD_VOICES, LOGGER
 from utils.identity import get_speech_token
 
 
@@ -71,7 +71,7 @@ def podcast_script_to_ssml(podcast) -> str:
             .replace('"', "&quot;")
             .replace("'", "&apos;")
         )
-        ssml += f"<voice name='en-us-{line['name']}2:DragonHDLatestNeural'>{message}</voice>"  # TODO load names in a better way
+        ssml += f"<voice name='{AZURE_HD_VOICES[line['name']]}'>{message}</voice>"
 
     ssml += "</speak>"
 

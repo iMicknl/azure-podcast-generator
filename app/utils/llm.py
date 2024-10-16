@@ -26,7 +26,7 @@ Create a highly engaging podcast script named '{title}' between two people based
 - A conversational podcast script in structured JSON.
 - Include informal expressions and pauses.
 - Clearly mark speaker turns.
-- Name the hosts Andrew and Emma.
+- Name the hosts {voice_1} and {voice_2}.
 
 # Examples
 
@@ -74,7 +74,7 @@ JSON_SCHEMA = {
                     "properties": {
                         "name": {
                             "type": "string",
-                            "description": "Name of the host in lower-case",
+                            "description": "Name of the host. Use the provided names, don't change the casing or name.",
                         },
                         "message": {"type": "string"},
                     },
@@ -96,7 +96,10 @@ class PodcastScriptResponse:
 
 
 def document_to_podcast_script(
-    document: str, title: str = "AI in Action"
+    document: str,
+    title: str = "AI in Action",
+    voice_1: str = "Andrew",
+    voice_2: str = "Emma",
 ) -> PodcastScriptResponse:
     """Get LLM response."""
 
@@ -117,7 +120,7 @@ def document_to_podcast_script(
         messages=[
             {
                 "role": "system",
-                "content": PROMPT.format(title=title),
+                "content": PROMPT.format(title=title, voice_1=voice_1, voice_2=voice_2),
             },
             # Wrap the document in <documents> tag for Prompt Shield Indirect attacks
             # https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cindirect%2Cpython-new#embedding-documents-in-your-prompt

@@ -4,7 +4,7 @@ import logging
 import os
 
 import streamlit as st
-from const import LOGGER
+from const import AZURE_HD_VOICES, LOGGER
 from dotenv import find_dotenv, load_dotenv
 from utils.cost import (
     calculate_azure_ai_speech_costs,
@@ -45,7 +45,53 @@ uploaded_file = st.file_uploader(
     type=["pdf", "docx", "pptx", "txt", "md"],
 )
 
-if uploaded_file:
+# Advanced Settings popover
+with st.expander("Advanced options", expanded=False):
+    col1, col2 = st.columns(2)
+
+    # Voice 1 select box
+    voice_1 = col1.selectbox(
+        "Voice 1",
+        options=list(AZURE_HD_VOICES.keys()),
+        index=0,
+        key="voice_1",
+    )
+
+    # Voice 2 select box
+    voice_2 = col2.selectbox(
+        "Voice 2",
+        options=list(AZURE_HD_VOICES.keys()),
+        index=4,
+        key="voice_2",
+    )
+
+    # col3, col4 = st.columns(2)
+
+    # # Tone select slider
+    # tone = col3.select_slider(
+    #     "Tone",
+    #     options=["Formal", "Neutral", "Informal"],
+    #     value="Neutral",
+    # )
+
+    # # Length select box
+    # length = col4.select_slider(
+    #     "Length",
+    #     options=["Short (~1 min)", "Medium (~2 min)", "Long (~3 min)"],
+    #     value="Medium (~2 min)",
+    # )
+
+# Submit button
+generate_podcast = st.button(
+    "Generate Podcast", type="primary", disabled=not uploaded_file
+)
+
+if generate_podcast:
+    st.session_state["generate_podcast_disabled"] = True
+else:
+    st.session_state["generate_podcast_disabled"] = False
+
+if uploaded_file and generate_podcast:
     bytes_data = uploaded_file.read()
 
     with st.status(
@@ -84,7 +130,10 @@ if uploaded_file:
 
         # Convert input document to podcast script
         podcast_response = document_to_podcast_script(
-            document=document_response.markdown, title=podcast_title
+            document=document_response.markdown,
+            title=podcast_title,
+            voice_1=voice_1,
+            voice_2=voice_2,
         )
 
         st.markdown("### Podcast script:")
