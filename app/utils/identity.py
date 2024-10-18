@@ -1,5 +1,7 @@
 """Module for Azure identity utils."""
 
+import base64
+import json
 from datetime import timedelta
 
 import streamlit as st
@@ -44,3 +46,21 @@ def get_speech_token(resource_id: str) -> str:
     authorization_token = "aad#" + resource_id + "#" + access_token.token
 
     return authorization_token
+
+
+def check_claim_for_tenant(client_principal: str, authorized_tenants: list):
+    """Check if claim is authorized tenant."""
+
+    decoded_bytes = base64.b64decode(client_principal.encode("utf-8"))
+    decoded_str = decoded_bytes.decode("utf-8")
+    client_principal = json.loads(decoded_str)
+    tenant_id = next(
+        (
+            claim["val"]
+            for claim in client_principal["claims"]
+            if claim["typ"] == "http://schemas.microsoft.com/identity/claims/tenantid"
+        ),
+        None,
+    )
+
+    return tenant_id in authorized_tenants

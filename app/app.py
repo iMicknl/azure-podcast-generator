@@ -12,8 +12,21 @@ from utils.cost import (
     calculate_azure_openai_costs,
 )
 from utils.document import DocumentResponse, document_to_markdown
+from utils.identity import check_claim_for_tenant
 from utils.llm import document_to_podcast_script, get_encoding
 from utils.speech import podcast_script_to_ssml, text_to_speech
+
+# optional: only allow specific tenants to access the app (using Azure Entra ID)
+headers = st.context.headers
+if os.getenv("ENTRA_AUTHORIZED_TENANTS") and headers.get("X-Ms-Client-Principal"):
+    authorized_tenants = os.environ["ENTRA_AUTHORIZED_TENANTS"].split(",")
+    ms_client_principal = headers.get("X-Ms-Client-Principal")
+    access = check_claim_for_tenant(ms_client_principal, authorized_tenants)
+
+    if access is not True:
+        st.error("Access denied.")
+        st.stop()
+
 
 st.set_page_config(
     page_title="Azure Podcast Generator",
@@ -23,6 +36,7 @@ st.set_page_config(
     menu_items=None,
 )
 st.title("🗣️ Podcast Generator")
+
 
 st.write(
     "Generate an engaging ~2 minute podcast based on your documents (e.g. scientific papers from arXiv) using Azure OpenAI and Azure Speech."
@@ -186,7 +200,5 @@ st.caption(
 if __name__ == "__main__":
     load_dotenv(find_dotenv())
 
-if os.getenv("RUNNING_IN_PRODUCTION") and os.getenv("DEBUG_MODE") != "true":
-    logging.basicConfig(level=logging.WARNING)
-else:
+if os.getenv("DEBUG_MODE") == "true":
     logging.basicConfig(level=logging.INFO)
