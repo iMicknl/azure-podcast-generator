@@ -44,7 +44,7 @@ podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
 uploaded_file = form_container.file_uploader(
     "Upload your document",
     accept_multiple_files=False,
-    type=["pdf", "docx", "pptx", "txt", "md"],
+    type=["pdf", "doc", "docx", "ppt", "pptx", "txt", "md"],
 )
 
 # Advanced options expander
@@ -56,7 +56,6 @@ with form_container.expander("Advanced options", expanded=False):
         "Voice 1",
         options=list(AZURE_HD_VOICES.keys()),
         index=0,
-        key="voice_1",
     )
 
     # Voice 2 select box
@@ -64,7 +63,6 @@ with form_container.expander("Advanced options", expanded=False):
         "Voice 2",
         options=list(AZURE_HD_VOICES.keys()),
         index=4,
-        key="voice_2",
     )
 
 # Submit button
