@@ -100,10 +100,6 @@ if uploaded_file and generate_podcast:
                 markdown=bytes_data.decode("utf-8"), pages=0
             )
 
-        LOGGER.info(
-            f"Processing document: {uploaded_file.name}, type: {uploaded_file.type}"
-        )
-
         status.update(
             label="Analyzing document and generating podcast script with Azure OpenAI...",
             state="running",
@@ -111,7 +107,7 @@ if uploaded_file and generate_podcast:
         )
 
         num_tokens = len(get_encoding().encode(document_response.markdown))
-        LOGGER.info(f"Number of document tokens: {num_tokens}")
+        LOGGER.info(f"Generating podcast script. Document tokens: {num_tokens}")
 
         # Convert input document to podcast script
         podcast_response = document_to_podcast_script(

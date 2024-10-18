@@ -16,7 +16,7 @@ Create a highly engaging podcast script between two people based on the input te
 # Steps
 
 1. **Review the Document(s) and Podcast Title**: Understand the main themes, key points, interesting facts and tone.
-2. **Adjust your plan to the requested podcast duration**: The conversation should be engaging and take about 3 minutes to read out loud.
+2. **Adjust your plan to the requested podcast duration**: The conversation should be engaging and take about 5 minutes to read out loud.
 3. **Character Development**: Define two distinct personalities for the hosts.
 4. **Script Structure**: Outline the introduction, main discussion, and conclusion.
 5. **Incorporate Informal Language**: Use expressions and fillers to create a natural dialogue flow.
