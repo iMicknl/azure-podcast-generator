@@ -89,7 +89,7 @@ if uploaded_file and generate_podcast:
             "image/jpeg",
             "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.ms-powerpoint"
+            "application/vnd.ms-powerpoint",
             "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         ]:
             document_response = document_to_markdown(bytes_data)
