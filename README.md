@@ -52,6 +52,12 @@ az containerapp up --resource-group your-rg-name \
 --env-vars DOCUMENTINTELLIGENCE_ENDPOINT="" AZURE_OPENAI_ENDPOINT="" AZURE_OPENAI_MODEL_DEPLOYMENT="gpt-4o" AZURE_SPEECH_RESOURCE_ID="" AZURE_SPEECH_REGION="westeurope"
 ```
 
+It is advised to set the [sticky-sessions](https://learn.microsoft.com/en-us/azure/container-apps/sticky-sessions?pivots=azure-portal) to `sticky` using the command below, to prevent any issues with file-uploads.
+
+```bash
+az containerapp ingress sticky-sessions set --affinity sticky --name your-app-name --resource-group your-rg-name
+```
+
 
 ## Inspired by
 - Google NotebookLM

@@ -11,22 +11,24 @@ from openai.types import CompletionUsage
 from utils.identity import get_token_provider
 
 PROMPT = """
-Create a highly engaging podcast script named '{title}' between two people based on the input text. Use informal language to enhance the human-like quality of the conversation, including expressions like \"wow,\" laughter, and pauses such as \"uhm.\"
+Create a highly engaging podcast script between two people based on the input text. Use informal language to enhance the human-like quality of the conversation, including expressions like \"wow,\" laughter, and pauses such as \"uhm.\"
 
 # Steps
 
-1. **Review the Document(s) and Podcast Title**: Understand the main themes, key points, and tone.
-2. **Character Development**: Define two distinct personalities for the hosts.
-3. **Script Structure**: Outline the introduction, main discussion, and conclusion.
-4. **Incorporate Informal Language**: Use expressions and fillers to create a natural dialogue flow.
-5. **Engage with Humor and Emotion**: Include laughter and emotional responses to make the conversation lively.
+1. **Review the Document(s) and Podcast Title**: Understand the main themes, key points, interesting facts and tone.
+2. **Adjust your plan to the requested podcast duration**: The conversation should be engaging and take about 5 minutes to read out loud.
+3. **Character Development**: Define two distinct personalities for the hosts.
+4. **Script Structure**: Outline the introduction, main discussion, and conclusion.
+5. **Incorporate Informal Language**: Use expressions and fillers to create a natural dialogue flow.
+6. **Engage with Humor and Emotion**: Include laughter and emotional responses to make the conversation lively. Think about how the hosts would react to the content and make it an engaging conversation.
+
 
 # Output Format
 
 - A conversational podcast script in structured JSON.
 - Include informal expressions and pauses.
 - Clearly mark speaker turns.
-- Name the hosts Andrew and Emma.
+- Name the hosts {voice_1} and {voice_2}.
 
 # Examples
 
@@ -46,7 +48,6 @@ Create a highly engaging podcast script named '{title}' between two people based
 - Ensure the conversation is coherent and follows a logical progression.
 - Adapt the style and tone based on the document's content and podcast title.
 - Think step by step, grasp the key points of the document / paper, and explain them in a conversational tone.
-- Make sure the conversation will take about 5 minutes to read out loud.
 """.strip()
 
 JSON_SCHEMA = {
@@ -74,7 +75,7 @@ JSON_SCHEMA = {
                     "properties": {
                         "name": {
                             "type": "string",
-                            "description": "Name of the host in lower-case",
+                            "description": "Name of the host. Use the provided names, don't change the casing or name.",
                         },
                         "message": {"type": "string"},
                     },
@@ -96,7 +97,10 @@ class PodcastScriptResponse:
 
 
 def document_to_podcast_script(
-    document: str, title: str = "AI in Action"
+    document: str,
+    title: str = "AI in Action",
+    voice_1: str = "Andrew",
+    voice_2: str = "Emma",
 ) -> PodcastScriptResponse:
     """Get LLM response."""
 
@@ -117,13 +121,13 @@ def document_to_podcast_script(
         messages=[
             {
                 "role": "system",
-                "content": PROMPT.format(title=title),
+                "content": PROMPT.format(voice_1=voice_1, voice_2=voice_2),
             },
             # Wrap the document in <documents> tag for Prompt Shield Indirect attacks
             # https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cindirect%2Cpython-new#embedding-documents-in-your-prompt
             {
                 "role": "user",
-                "content": f"<documents>{document}</documents>",
+                "content": f"<title>{title}</title><documents><document>{document}</document></documents>",
             },
         ],
         model=os.getenv("AZURE_OPENAI_MODEL_DEPLOYMENT", "gpt-4o"),

@@ -4,7 +4,7 @@ import logging
 import os
 
 import streamlit as st
-from const import LOGGER
+from const import AZURE_HD_VOICES, LOGGER
 from dotenv import find_dotenv, load_dotenv
 from utils.cost import (
     calculate_azure_ai_speech_costs,
@@ -34,21 +34,48 @@ st.info(
 )
 
 final_audio = None
+form = st.empty()
+form_container = form.container()
 
 # Podcast title input
-podcast_title = st.text_input("Podcast Title", value="AI in Action")
+podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
 
 # File upload
-uploaded_file = st.file_uploader(
+uploaded_file = form_container.file_uploader(
     "Upload your document",
     accept_multiple_files=False,
-    type=["pdf", "docx", "pptx", "txt", "md"],
+    type=["pdf", "doc", "docx", "ppt", "pptx", "txt", "md"],
 )
 
-if uploaded_file:
-    bytes_data = uploaded_file.read()
+# Advanced options expander
+with form_container.expander("Advanced options", expanded=False):
+    col1, col2 = st.columns(2)
 
-    with st.status(
+    # Voice 1 select box
+    voice_1 = col1.selectbox(
+        "Voice 1",
+        options=list(AZURE_HD_VOICES.keys()),
+        index=0,
+    )
+
+    # Voice 2 select box
+    voice_2 = col2.selectbox(
+        "Voice 2",
+        options=list(AZURE_HD_VOICES.keys()),
+        index=4,
+    )
+
+# Submit button
+generate_podcast = form_container.button(
+    "Generate Podcast", type="primary", disabled=not uploaded_file
+)
+
+if uploaded_file and generate_podcast:
+    bytes_data = uploaded_file.read()
+    form.empty()
+
+    status_container = st.empty()
+    with status_container.status(
         "Processing document with Azure Document Intelligence...", expanded=False
     ) as status:
         LOGGER.info(
@@ -60,7 +87,9 @@ if uploaded_file:
             "application/pdf",
             "image/png",
             "image/jpeg",
+            "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-powerpoint"
             "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         ]:
             document_response = document_to_markdown(bytes_data)
@@ -69,10 +98,6 @@ if uploaded_file:
                 markdown=bytes_data.decode("utf-8"), pages=0
             )
 
-        LOGGER.info(
-            f"Processing document: {uploaded_file.name}, type: {uploaded_file.type}"
-        )
-
         status.update(
             label="Analyzing document and generating podcast script with Azure OpenAI...",
             state="running",
@@ -80,20 +105,22 @@ if uploaded_file:
         )
 
         num_tokens = len(get_encoding().encode(document_response.markdown))
-        LOGGER.info(f"Number of document tokens: {num_tokens}")
+        LOGGER.info(f"Generating podcast script. Document tokens: {num_tokens}")
 
         # Convert input document to podcast script
         podcast_response = document_to_podcast_script(
-            document=document_response.markdown, title=podcast_title
+            document=document_response.markdown,
+            title=podcast_title,
+            voice_1=voice_1,
+            voice_2=voice_2,
         )
 
-        st.markdown("### Podcast script:")
         podcast_script = podcast_response.podcast["script"]
         for item in podcast_script:
             st.markdown(f"**{item['name']}**: {item['message']}")
 
         status.update(
-            label="Generate podcast using Azure Speech (HD voices)...",
+            label="Generating podcast using Azure Speech (HD voices)...",
             state="running",
             expanded=False,
         )
@@ -121,7 +148,26 @@ if uploaded_file:
             characters=sum(len(item["message"]) for item in podcast_script)
         )
 
-        st.markdown("### Costs")
+        status.update(label="Finished", state="complete", expanded=False)
+        final_audio = True
+
+
+# Display audio player after generation
+if final_audio:
+    status_container.empty()
+
+    # Create three tabs
+    audio_tab, transcript_tab, costs_tab = st.tabs(["Audio", "Transcript", "Costs"])
+
+    with audio_tab:
+        st.audio(audio, format="audio/wav")
+
+    with transcript_tab:
+        podcast_script = podcast_response.podcast["script"]
+        for item in podcast_script:
+            st.markdown(f"**{item['name']}**: {item['message']}")
+
+    with costs_tab:
         st.markdown(
             f"**Azure: Document Intelligence**: ${azure_document_intelligence_costs:.2f}"
         )
@@ -130,14 +176,6 @@ if uploaded_file:
         st.markdown(
             f"**Total costs**: ${(azure_ai_speech_costs + azure_openai_costs + azure_document_intelligence_costs):.2f}"
         )
-
-        final_audio = True
-        status.update(label="Finished", state="complete", expanded=False)
-
-# Display audio player after generation
-if final_audio:
-    st.audio(audio, format="audio/wav")
-
 
 # Footer
 st.divider()
