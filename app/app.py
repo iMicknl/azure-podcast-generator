@@ -89,7 +89,9 @@ if uploaded_file and generate_podcast:
             "application/pdf",
             "image/png",
             "image/jpeg",
+            "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-powerpoint"
             "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         ]:
             document_response = document_to_markdown(bytes_data)
@@ -153,7 +155,6 @@ if uploaded_file and generate_podcast:
         )
 
         status.update(label="Finished", state="complete", expanded=False)
-        status.empty()
         final_audio = True
 
 

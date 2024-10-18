@@ -6,7 +6,8 @@ LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 # The new voices are currently not listed in the Voice List API or documentation.
-# TODO: Retrieve voice list from tts.speech.microsoft.com/cognitiveservices/voices/list in the future
+# Will retrieve voice list from tts.speech.microsoft.com/cognitiveservices/voices/list in the future
+# TODO: Split voices by language
 AZURE_HD_VOICES = {
     # "de-DE-Seraphina": "de-DE-Seraphina:DragonHDLatestNeural",
     # "en-US-Andrew": "en-US-Andrew:DragonHDLatestNeural",
