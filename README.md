@@ -9,6 +9,10 @@ This project leverages Streamlit for the front-end, Azure Document Intelligence 
 > This application is an example implementation and is not intended for production use. It is provided as-is and is not supported.
 
 
+
+https://github.com/user-attachments/assets/d9c3b218-1989-42af-adfb-442b450715fe
+
+
 ## Getting started
 
 You can run the application locally or deploy it to Azure, such as on Azure Container Apps. For development, the easiest approach is to use the included [Dev Container](https://code.visualstudio.com/docs/devcontainers/containers), which installs all necessary dependencies and tools to get you started.
