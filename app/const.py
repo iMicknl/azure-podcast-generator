@@ -14,6 +14,7 @@ AZURE_HD_VOICES = {
     "Andrew": "en-US-Andrew2:DragonHDLatestNeural",
     "Aria": "en-US-Aria:DragonHDLatestNeural",
     "Ava": "en-US-Ava:DragonHDLatestNeural",
+    "Brian": "en-US-Brian:DragonHDLatestNeural",
     "Davis": "en-US-Davis:DragonHDLatestNeural",
     # "Emma": "en-US-Emma:DragonHDLatestNeural",
     "Emma": "en-US-Emma2:DragonHDLatestNeural",
