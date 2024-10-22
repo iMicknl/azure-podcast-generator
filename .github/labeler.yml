@@ -1,0 +1,18 @@
+feature:
+  - head-branch: ["^feature/", "feature"]
+
+enhancement:
+  - head-branch: ["^enhancement/", "enhancement"]
+
+bug:
+  - head-branch: ["^fix/", "fix"]
+
+documentation:
+  - head-branch: ["^docs/", "docs"]
+  - changed-files:
+      - any-glob-to-any-file: ["**/*.md"]
+
+ci:
+  - head-branch: ["^ci/", "ci"]
+  - changed-files:
+      - any-glob-to-any-file: [".github/*"]

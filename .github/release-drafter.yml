@@ -1,0 +1,36 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+exclude-labels:
+  - 'skip-changelog'
+categories:
+  - title: ":boom: Breaking Changes"
+    label: "breaking"
+  - title: ":rocket: Features"
+    label: "enhancement"
+  - title: ":beetle: Fixes"
+    label: "bug"
+  - title: ":construction_worker: Continuous Integration"
+    label: "ci"
+  - title: ":books: Documentation"
+    label: "documentation"
+  - title: ":package: Dependencies"
+    labels:
+      - "dependencies"
+      - "build"
+version-resolver:
+  major:
+    labels:
+      - 'major'
+  minor:
+    labels:
+      - 'minor'
+  patch:
+    labels:
+      - 'patch'
+  default: patch
+template: |
+  ## What's changed
+  $CHANGES
+
+  ## Contributors to this release
+  $CONTRIBUTORS
