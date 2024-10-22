@@ -69,14 +69,18 @@ with form_container.expander("Advanced options", expanded=False):
     voice_1 = col1.selectbox(
         "Voice 1",
         options=list(AZURE_HD_VOICES.keys()),
-        index=0,
+        index=list(AZURE_HD_VOICES.keys()).index("Andrew")
+        if "Andrew" in AZURE_HD_VOICES
+        else 0,
     )
 
     # Voice 2 select box
     voice_2 = col2.selectbox(
         "Voice 2",
         options=list(AZURE_HD_VOICES.keys()),
-        index=4,
+        index=list(AZURE_HD_VOICES.keys()).index("Emma")
+        if "Emma" in AZURE_HD_VOICES
+        else 1,
     )
 
 # Submit button
