@@ -1,5 +1,9 @@
 name: Release Drafter
 
+permissions:
+  # Write permission is required to create a GitHub release
+  contents: write
+
 on:
   push:
     branches:
