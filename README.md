@@ -23,7 +23,7 @@ You can run the application locally or deploy it to Azure, such as on Azure Cont
 This project utilizes several Azure services, requiring an active Azure subscription. The services used include:
 
 - Azure Document Intelligence
-- Azure OpenAI Service, gpt-4o (2024-08-06) [model availability per region](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=python-secure#standard-deployment-model-availability)
+- Azure OpenAI Service, gpt-4o (*2024-08-06*, earlier model versions do not support structured outputs). See [model availability per region](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=python-secure#standard-deployment-model-availability)
 - Azure AI Speech (East US, West Europe, and Southeast Asia for Azure HD voices)
 
 ### Local deployment
