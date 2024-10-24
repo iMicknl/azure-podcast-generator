@@ -6,6 +6,8 @@ categories:
   - title: ":boom: Breaking Changes"
     label: "breaking"
   - title: ":rocket: Features"
+    label: "feature"
+  - title: ":racehorse: Enhancements"
     label: "enhancement"
   - title: ":beetle: Fixes"
     label: "bug"
