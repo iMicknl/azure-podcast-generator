@@ -12,6 +12,7 @@ from utils.identity import get_token_provider
 
 PROMPT = """
 Create a highly engaging podcast script between two people based on the input text. Use informal language to enhance the human-like quality of the conversation, including expressions like \"wow,\" laughter, and pauses such as \"uhm.\"
+The language of the podcast should be {language}, even if the original document is in a different language.
 
 # Steps
 
@@ -101,6 +102,7 @@ def document_to_podcast_script(
     title: str = "AI in Action",
     voice_1: str = "Andrew",
     voice_2: str = "Emma",
+    language: str = "English (en-US)",
 ) -> PodcastScriptResponse:
     """Get LLM response."""
 
@@ -121,7 +123,9 @@ def document_to_podcast_script(
         messages=[
             {
                 "role": "system",
-                "content": PROMPT.format(voice_1=voice_1, voice_2=voice_2),
+                "content": PROMPT.format(
+                    voice_1=voice_1, voice_2=voice_2, language=language
+                ),
             },
             # Wrap the document in <documents> tag for Prompt Shield Indirect attacks
             # https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cindirect%2Cpython-new#embedding-documents-in-your-prompt
