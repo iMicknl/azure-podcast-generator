@@ -65,7 +65,7 @@ az role assignment create --assignee <your-user-id> --role "Cognitive Services S
 
 3. To support identity based authentication with Azure AI Speech, you need to [create a custom domain name](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#create-a-custom-domain-name).
 
-4. [Get your Speech resource ID](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#get-the-speech-resource-id) and set the `AZURE_SPEECH_RESOURCE_ID` environment variable.
+4. [Retrieve your Speech resource ID](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#get-the-speech-resource-id) and set the `AZURE_SPEECH_RESOURCE_ID` environment variable.
 
 #### Start the development server
 
