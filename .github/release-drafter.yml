@@ -26,9 +26,12 @@ version-resolver:
   minor:
     labels:
       - 'minor'
+      - 'feature'
   patch:
     labels:
       - 'patch'
+      - 'bug'
+      - 'enhancement'
   default: patch
 template: |
   ## What's changed
