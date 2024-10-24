@@ -48,7 +48,7 @@ It is recommended to use managed identity-based authentication for Azure service
 az login
 ```
 
-1. Assign roles. Ensure your user account has the necessary roles to access the Azure services. You can assign these roles using the Azure Portal (IAM) or the Azure CLI.
+2. Assign roles. Ensure your user account has the necessary roles to access the Azure services. You can assign these roles using the Azure Portal (IAM) or the Azure CLI.
 
 ```bash
 # Assign roles using Azure CLI
@@ -66,13 +66,11 @@ az role assignment create --assignee <your-user-id> --role "Cognitive Services S
 
 For Microsoft Entra authentication with Speech resources, you need to assign either the Cognitive Services Speech Contributor or Cognitive Services Speech User role.
 
-1. To support Microsoft Entra authentication with Azure AI Speech, you need to [create a custom domain name](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#create-a-custom-domain-name).
+3. To support Microsoft Entra authentication with Azure AI Speech, you need to [create a custom domain name](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#create-a-custom-domain-name).
 
-1. [Get the Speech resource ID](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#get-the-speech-resource-id) and set the `AZURE_SPEECH_RESOURCE_ID` environment variable.
+4. [Get your Speech resource ID](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#get-the-speech-resource-id) and set the `AZURE_SPEECH_RESOURCE_ID` environment variable.
 
 #### Start the development server
-
-```bash
 
 Start the development Streamlit server using the command below. It will launch on port 8065.
 
