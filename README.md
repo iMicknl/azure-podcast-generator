@@ -50,6 +50,12 @@ az login
 
 2. Assign roles. Ensure your user account has the necessary roles to access the Azure services. You can assign these roles using the Azure Portal (IAM) or the Azure CLI.
 
+| Azure Resource              | Roles                                                    |
+| --------------------------- | -------------------------------------------------------- |
+| Azure Document Intelligence | Cognitive Service User                                   |
+| Azure OpenAI Service        | Cognitive Services OpenAI User or Cognitive Service User |
+| Azure AI Speech             | Cognitive Services Speech User or Cognitive Service User |
+
 ```bash
 # Assign roles using Azure CLI
 az role assignment create --assignee <your-user-id> --role "Cognitive Service User" --scope <resource-scope>
@@ -57,16 +63,7 @@ az role assignment create --assignee <your-user-id> --role "Cognitive Services O
 az role assignment create --assignee <your-user-id> --role "Cognitive Services Speech User" --scope <resource-scope>
 ```
 
-| Azure Resource              | Roles                                                    |
-| --------------------------- | -------------------------------------------------------- |
-| Azure Document Intelligence | Cognitive Service User                                   |
-| Azure OpenAI Service        | Cognitive Services OpenAI User or Cognitive Service User |
-| Azure AI Speech             | Cognitive Services Speech User or Cognitive Service User |
-
-
-For Microsoft Entra authentication with Speech resources, you need to assign either the Cognitive Services Speech Contributor or Cognitive Services Speech User role.
-
-3. To support Microsoft Entra authentication with Azure AI Speech, you need to [create a custom domain name](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#create-a-custom-domain-name).
+3. To support identity based authentication with Azure AI Speech, you need to [create a custom domain name](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#create-a-custom-domain-name).
 
 4. [Get your Speech resource ID](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-configure-azure-ad-auth?tabs=portal&pivots=programming-language-python#get-the-speech-resource-id) and set the `AZURE_SPEECH_RESOURCE_ID` environment variable.
 
