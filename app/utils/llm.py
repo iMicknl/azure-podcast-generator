@@ -10,7 +10,7 @@ from openai import AzureOpenAI
 from openai.types import CompletionUsage
 from utils.identity import get_token_provider
 
-AZURE_OPENAI_API_VERSION = "2024-09-01-preview"
+AZURE_OPENAI_API_VERSION = "2024-10-21"
 
 PROMPT = """
 Create a highly engaging podcast script between two people based on the input text. Use informal language to enhance the human-like quality of the conversation, including expressions like \"wow,\" laughter, and pauses such as \"uhm.\"
