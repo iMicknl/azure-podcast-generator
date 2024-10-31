@@ -71,7 +71,11 @@ def podcast_script_to_ssml(podcast, language: str) -> str:
             .replace('"', "&quot;")
             .replace("'", "&apos;")
         )
-        ssml += f"<voice name='{AZURE_HD_VOICES[line['name']]}'>{message}</voice>"
+        ssml += f"""
+            <voice name='{AZURE_HD_VOICES[line['name']]}'>
+                <lang xml:lang='{language}'>{message}</lang>
+            </voice>
+            """
 
     ssml += "</speak>"
 
