@@ -4,7 +4,7 @@ import logging
 import os
 
 import streamlit as st
-from const import AZURE_HD_VOICES, LOGGER
+from const import AZURE_HD_VOICES, LOGGER, SUPPORTED_LANGUAGES
 from dotenv import find_dotenv, load_dotenv
 from utils.cost import (
     calculate_azure_ai_speech_costs,
@@ -83,6 +83,19 @@ with form_container.expander("Advanced options", expanded=False):
         else 1,
     )
 
+    # Language select box
+    language = st.selectbox(
+        "Language (experimental)",
+        options=list(SUPPORTED_LANGUAGES.values()),
+        index=list(SUPPORTED_LANGUAGES.keys()).index("en-US"),
+        help="This is currently an experimental feature due to Azure Speech limitations.",
+    )
+    selected_language_key = next(
+        key for key, value in SUPPORTED_LANGUAGES.items() if value == language
+    )
+
+    print(selected_language_key)
+
 # Submit button
 generate_podcast = form_container.button(
     "Generate Podcast", type="primary", disabled=not uploaded_file
@@ -131,6 +144,7 @@ if uploaded_file and generate_podcast:
             title=podcast_title,
             voice_1=voice_1,
             voice_2=voice_2,
+            language=f"{language} ({selected_language_key})",
         )
 
         podcast_script = podcast_response.podcast["script"]
@@ -144,7 +158,9 @@ if uploaded_file and generate_podcast:
         )
 
         # Convert podcast script to audio
-        ssml = podcast_script_to_ssml(podcast_response.podcast)
+        ssml = podcast_script_to_ssml(
+            podcast_response.podcast, language=selected_language_key
+        )
         audio = text_to_speech(ssml)
 
         status.update(
