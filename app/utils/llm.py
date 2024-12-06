@@ -103,6 +103,7 @@ def document_to_podcast_script(
     title: str = "AI in Action",
     voice_1: str = "Andrew",
     voice_2: str = "Emma",
+    feedback: str = None,
 ) -> PodcastScriptResponse:
     """Get LLM response."""
 
@@ -120,6 +121,10 @@ def document_to_podcast_script(
             azure_ad_token_provider=get_token_provider(),
         )
 
+    user_content = f"<title>{title}</title><documents><document>{document}</document></documents>"
+    if feedback:
+        user_content += f"\n\nUser Feedback: {feedback}"
+
     chat_completion = client.chat.completions.create(
         messages=[
             {
@@ -130,7 +135,7 @@ def document_to_podcast_script(
             # https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cindirect%2Cpython-new#embedding-documents-in-your-prompt
             {
                 "role": "user",
-                "content": f"<title>{title}</title><documents><document>{document}</document></documents>",
+                "content": user_content,
             },
         ],
         model=os.getenv("AZURE_OPENAI_MODEL_DEPLOYMENT", "gpt-4o"),
