@@ -1,5 +1,3 @@
-"""Streamlit app for Azure Podcast Generator"""
-
 import logging
 import os
 
@@ -13,8 +11,14 @@ from utils.cost import (
 )
 from utils.document import DocumentResponse, document_to_markdown
 from utils.identity import check_claim_for_tenant
-from utils.llm import document_to_podcast_script, get_encoding
+from utils.llm import (
+    document_to_podcast_script,
+    document_to_podcast_script_iterative,
+    get_encoding,
+)
 from utils.speech import podcast_script_to_ssml, text_to_speech
+from utils.speech import synthesize_in_chunks
+
 
 # optional: only allow specific tenants to access the app (using Azure Entra ID)
 headers = st.context.headers
@@ -27,7 +31,6 @@ if os.getenv("ENTRA_AUTHORIZED_TENANTS") and headers.get("X-Ms-Client-Principal"
         st.error("Access denied.")
         st.stop()
 
-
 st.set_page_config(
     page_title="Azure Podcast Generator",
     page_icon="🗣️",
@@ -37,13 +40,12 @@ st.set_page_config(
 )
 st.title("🗣️ Podcast Generator")
 
-
 st.write(
-    "Generate an engaging ~2 minute podcast based on your documents (e.g. scientific papers from arXiv) using Azure OpenAI and Azure Speech."
+    "Generate an engaging podcast based on your documents (e.g. scientific papers from arXiv) using Azure OpenAI and Azure Speech."
 )
 
 st.info(
-    "Generative AI may produce inaccuracies in podcast scripts. Always review for inconsistencies before publishing.",
+    "Generative AI may produce inaccuracies. Review for inconsistencies before publishing.",
     icon="ℹ️",
 )
 
@@ -59,6 +61,13 @@ uploaded_file = form_container.file_uploader(
     "Upload your document",
     accept_multiple_files=False,
     type=["pdf", "doc", "docx", "ppt", "pptx", "txt", "md"],
+)
+
+# Podcast length selection
+podcast_duration = form_container.selectbox(
+    "Podcast Duration",
+    options=["Short (2-3 min)", "Medium (10-15 min)", "Long (20-30 min)"],
+    index=0,
 )
 
 # Advanced options expander
@@ -100,7 +109,7 @@ if uploaded_file and generate_podcast:
             f"Processing document: {uploaded_file.name}, type: {uploaded_file.type}"
         )
 
-        # Convert PDF/image/Word files to Markdown with Document Intelligence
+        # Convert file to Markdown
         if uploaded_file.type in [
             "application/pdf",
             "image/png",
@@ -125,35 +134,45 @@ if uploaded_file and generate_podcast:
         num_tokens = len(get_encoding().encode(document_response.markdown))
         LOGGER.info(f"Generating podcast script. Document tokens: {num_tokens}")
 
-        # Convert input document to podcast script
-        podcast_response = document_to_podcast_script(
-            document=document_response.markdown,
-            title=podcast_title,
-            voice_1=voice_1,
-            voice_2=voice_2,
-        )
+        # Decide approach based on duration
+        duration_choice = podcast_duration.split()[0].lower()  # short, medium, long
+        if duration_choice == "short":
+            podcast_response = document_to_podcast_script(
+                document=document_response.markdown,
+                title=podcast_title,
+                voice_1=voice_1,
+                voice_2=voice_2,
+            )
+        else:
+            # Use iterative approach for medium / long
+            podcast_response = document_to_podcast_script_iterative(
+                document=document_response.markdown,
+                title=podcast_title,
+                voice_1=voice_1,
+                voice_2=voice_2,
+                duration=duration_choice,
+            )
 
         podcast_script = podcast_response.podcast["script"]
         for item in podcast_script:
             st.markdown(f"**{item['name']}**: {item['message']}")
 
         status.update(
-            label="Generating podcast using Azure Speech (HD voices)...",
+            label="Generating podcast audio using Azure Speech (HD voices)...",
             state="running",
             expanded=False,
         )
 
-        # Convert podcast script to audio
-        ssml = podcast_script_to_ssml(podcast_response.podcast)
-        audio = text_to_speech(ssml)
+        #ssml = podcast_script_to_ssml(podcast_response.podcast)
+        audio = synthesize_in_chunks(podcast_response.podcast)
 
         status.update(
-            label="Calculate Azure costs...",
+            label="Calculating Azure costs...",
             state="running",
             expanded=False,
         )
 
-        # Calculate costs
+        # Costs
         azure_document_intelligence_costs = calculate_azure_document_intelligence_costs(
             pages=document_response.pages
         )
@@ -161,7 +180,6 @@ if uploaded_file and generate_podcast:
             input_tokens=podcast_response.usage.prompt_tokens,
             output_tokens=podcast_response.usage.completion_tokens,
         )
-
         azure_ai_speech_costs = calculate_azure_ai_speech_costs(
             characters=sum(len(item["message"]) for item in podcast_script)
         )
@@ -169,40 +187,36 @@ if uploaded_file and generate_podcast:
         status.update(label="Finished", state="complete", expanded=False)
         final_audio = True
 
-
-# Display audio player after generation
 if final_audio:
     status_container.empty()
 
-    # Create three tabs
-    audio_tab, transcript_tab, costs_tab = st.tabs(["Audio", "Transcript", "Costs"])
+    # Tabs
+    if final_audio:
+        audio_tab, transcript_tab, costs_tab = st.tabs(["Audio", "Transcript", "Costs"])
+        with audio_tab:
+            st.audio(audio, format="audio/wav")
+        with transcript_tab:
+            podcast_script = podcast_response.podcast["script"]
+            for item in podcast_script:
+                st.markdown(f"**{item['name']}**: {item['message']}")
+        with costs_tab:
+            st.markdown(
+                f"**Azure: Document Intelligence**: ${azure_document_intelligence_costs:.2f}"
+            )
+            st.markdown(f"**Azure OpenAI Service**: ${azure_openai_costs:.2f}")
+            st.markdown(f"**Azure AI Speech**: ${azure_ai_speech_costs:.2f}")
+            st.markdown(
+                f"**Total costs**: ${(azure_ai_speech_costs + azure_openai_costs + azure_document_intelligence_costs):.2f}"
+            )
 
-    with audio_tab:
-        st.audio(audio, format="audio/wav")
-
-    with transcript_tab:
-        podcast_script = podcast_response.podcast["script"]
-        for item in podcast_script:
-            st.markdown(f"**{item['name']}**: {item['message']}")
-
-    with costs_tab:
-        st.markdown(
-            f"**Azure: Document Intelligence**: ${azure_document_intelligence_costs:.2f}"
-        )
-        st.markdown(f"**Azure OpenAI Service**: ${azure_openai_costs:.2f}")
-        st.markdown(f"**Azure AI Speech**: ${azure_ai_speech_costs:.2f}")
-        st.markdown(
-            f"**Total costs**: ${(azure_ai_speech_costs + azure_openai_costs + azure_document_intelligence_costs):.2f}"
-        )
-
-# Footer
 st.divider()
 st.caption(
-    "Created by [Mick Vleeshouwer](https://github.com/imicknl). The source code is available on [GitHub](https://github.com/iMicknl/azure-podcast-generator), contributions are welcome."
+    "Created by [Mick Vleeshouwer](https://github.com/imicknl). Source on [GitHub](https://github.com/iMicknl/azure-podcast-generator)."
 )
 
 if __name__ == "__main__":
     load_dotenv(find_dotenv())
+    print(os.getenv("DOCUMENTINTELLIGENCE_ENDPOINT"))
 
 if os.getenv("DEBUG_MODE") == "true":
     logging.basicConfig(level=logging.INFO)
