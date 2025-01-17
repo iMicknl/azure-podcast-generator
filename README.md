@@ -30,6 +30,8 @@ This project utilizes several Azure services, requiring an active Azure subscrip
 
 Make sure you have Python 3.12+, [uv](https://docs.astral.sh/uv/getting-started/installation/) and optionally the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) installed on your machine.
 
+If you're running Windows, also make sure you have installed `cmake`, and adding the `cmake` path to your environment variables. You can do this by installing the C++ Desktop Development workload in the Visual Studio Installer and adding `C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin` to your PATH environment variable.
+
 You can install the required dependencies via the command below using uv.
 
 ```bash

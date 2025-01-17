@@ -55,11 +55,11 @@ def text_to_speech(ssml) -> bytes:
     raise Exception(f"Unknown exit reason: {result.reason}")
 
 
-def podcast_script_to_ssml(podcast) -> str:
+def podcast_script_to_ssml(podcast, language: str) -> str:
     """Convert podcast script to SSML."""
 
     podcast_script = podcast["script"]
-    ssml = "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='en-US'>"
+    ssml = f"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='{language}'>"
 
     for line in podcast_script:
         # Escape SSML special characters
@@ -71,7 +71,11 @@ def podcast_script_to_ssml(podcast) -> str:
             .replace('"', "&quot;")
             .replace("'", "&apos;")
         )
-        ssml += f"<voice name='{AZURE_HD_VOICES[line['name']]}'>{message}</voice>"
+        ssml += f"""
+            <voice name='{AZURE_HD_VOICES[line['name']]}'>
+                <lang xml:lang='{language}'>{message}</lang>
+            </voice>
+            """
 
     ssml += "</speak>"
 
