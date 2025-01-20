@@ -175,7 +175,7 @@ if final_audio:
     status_container.empty()
 
     # Create three tabs
-    audio_tab, transcript_tab, costs_tab = st.tabs(["Audio", "Transcript", "Costs"])
+    audio_tab, transcript_tab, costs_tab, feedback_tab = st.tabs(["Audio", "Transcript", "Costs", "Feedback"])
 
     with audio_tab:
         st.audio(audio, format="audio/wav")
@@ -194,6 +194,62 @@ if final_audio:
         st.markdown(
             f"**Total costs**: ${(azure_ai_speech_costs + azure_openai_costs + azure_document_intelligence_costs):.2f}"
         )
+
+    with feedback_tab:
+        st.markdown("### Feedback")
+        feedback_text = st.text_area("Provide your feedback on the generated podcast script:")
+        regenerate_podcast = st.button("Regenerate Podcast")
+
+        if regenerate_podcast:
+            status_container = st.empty()
+            with status_container.status(
+                "Re-generating podcast script with Azure OpenAI based on feedback...", expanded=False
+            ) as status:
+                LOGGER.info("Re-generating podcast script based on user feedback")
+
+                # Re-generate podcast script based on feedback
+                podcast_response = document_to_podcast_script(
+                    document=document_response.markdown + "\n\nUser Feedback: " + feedback_text,
+                    title=podcast_title,
+                    voice_1=voice_1,
+                    voice_2=voice_2,
+                )
+
+                podcast_script = podcast_response.podcast["script"]
+                for item in podcast_script:
+                    st.markdown(f"**{item['name']}**: {item['message']}")
+
+                status.update(
+                    label="Generating podcast using Azure Speech (HD voices)...",
+                    state="running",
+                    expanded=False,
+                )
+
+                # Convert podcast script to audio
+                ssml = podcast_script_to_ssml(podcast_response.podcast)
+                audio = text_to_speech(ssml)
+
+                status.update(
+                    label="Calculate Azure costs...",
+                    state="running",
+                    expanded=False,
+                )
+
+                # Calculate costs
+                azure_document_intelligence_costs = calculate_azure_document_intelligence_costs(
+                    pages=document_response.pages
+                )
+                azure_openai_costs = calculate_azure_openai_costs(
+                    input_tokens=podcast_response.usage.prompt_tokens,
+                    output_tokens=podcast_response.usage.completion_tokens,
+                )
+
+                azure_ai_speech_costs = calculate_azure_ai_speech_costs(
+                    characters=sum(len(item["message"]) for item in podcast_script)
+                )
+
+                status.update(label="Finished", state="complete", expanded=False)
+                final_audio = True
 
 # Footer
 st.divider()
