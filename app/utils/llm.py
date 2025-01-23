@@ -103,7 +103,7 @@ def document_to_podcast_script(
     title: str = "AI in Action",
     voice_1: str = "Andrew",
     voice_2: str = "Emma",
-    max_tokens: int = 5000,
+    max_tokens: int = 8000,
 ) -> PodcastScriptResponse:
     """Get LLM response."""
 

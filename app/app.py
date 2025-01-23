@@ -87,11 +87,11 @@ with form_container.expander("Advanced options", expanded=False):
     max_tokens = st.slider(
         "Max Tokens",
         min_value=1000,
-        max_value=8000,
-        value=5000,
+        max_value=32000,
+        value=8000,
         step=500,
+        help="Select the maximum number of tokens to be used for generating the podcast script. Adjust this according to your OpenAI quota.",
     )
-
 # Submit button
 generate_podcast = form_container.button(
     "Generate Podcast", type="primary", disabled=not uploaded_file
