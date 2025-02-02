@@ -103,6 +103,7 @@ def document_to_podcast_script(
     title: str = "AI in Action",
     voice_1: str = "Andrew",
     voice_2: str = "Emma",
+    max_tokens: int = 8000,
 ) -> PodcastScriptResponse:
     """Get LLM response."""
 
@@ -136,7 +137,7 @@ def document_to_podcast_script(
         model=os.getenv("AZURE_OPENAI_MODEL_DEPLOYMENT", "gpt-4o"),
         temperature=0.7,
         response_format={"type": "json_schema", "json_schema": JSON_SCHEMA},
-        max_tokens=8000,
+        max_tokens=max_tokens,
     )
 
     message = chat_completion.choices[0].message.content
