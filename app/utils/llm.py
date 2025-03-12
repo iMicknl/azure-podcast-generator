@@ -13,7 +13,7 @@ from utils.identity import get_token_provider
 AZURE_OPENAI_API_VERSION = "2024-10-21"
 
 PROMPT = """
-Create a highly engaging podcast script between two people based on the input text. Use informal language to enhance the human-like quality of the conversation, including expressions like \"wow,\" laughter, and pauses such as \"uhm.\"
+Create a highly engaging podcast script between two people based on the input text. Use informal language to enhance the human-like quality of the conversation, including expressions like \"wow,\", and pauses such as \"uhm.\"
 
 # Steps
 
@@ -41,7 +41,7 @@ Create a highly engaging podcast script between two people based on the input te
 **Output:**
 - Speaker 1: \"Hey everyone, welcome to 'Exploring the Wonders of Space!' I'm [Name], and with me is [Name].\"
 - Speaker 2: \"Hey! Uhm, I'm super excited about today's topic. Did you see the latest on the new satellite launch?\"
-- Speaker 1: \"Wow, yes! It's incredible. I mean, imagine the data we'll get! [laughter]\"
+- Speaker 1: \"Wow, yes! It's incredible. I mean, imagine the data we'll get!\"
 - (Continue with discussion, incorporating humor and informal language)
 
 # Notes
