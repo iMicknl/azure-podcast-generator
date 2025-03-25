@@ -78,8 +78,8 @@ with form_container.expander("Advanced options", expanded=False):
     voice_2 = col2.selectbox(
         "Voice 2",
         options=list(AZURE_HD_VOICES.keys()),
-        index=list(AZURE_HD_VOICES.keys()).index("Emma")
-        if "Emma" in AZURE_HD_VOICES
+        index=list(AZURE_HD_VOICES.keys()).index("Ava")
+        if "Ava" in AZURE_HD_VOICES
         else 1,
     )
 
