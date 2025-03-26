@@ -52,16 +52,16 @@ wheels = [
 
 [[package]]
 name = "azure-ai-documentintelligence"
-version = "1.0.0"
+version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "azure-core" },
     { name = "isodate" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ca/fd/cd0d493e9dc93a5ce097db7508f1b2467a73dcc7022c235b409ce48b9679/azure_ai_documentintelligence-1.0.0.tar.gz", hash = "sha256:c8b6efc0fc7e65d7892c9585cfd256f7d8b3f2b46cecf92c75ab82e629eac253", size = 169420 }
+sdist = { url = "https://files.pythonhosted.org/packages/4a/1b/5fccfb5598b179279c71468ccb49b5f9f28b23c0f2a8ea786cdcc5f7f1e7/azure_ai_documentintelligence-1.0.1.tar.gz", hash = "sha256:246ec4d95316585175b38f687ffde17b394620221af966f635cec15a81c5b7cc", size = 171002 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/84/a8/c9c66d4d04b8aee06ebdc9a6077736b222b9b2fe92364fed6f9a1c08ece0/azure_ai_documentintelligence-1.0.0-py3-none-any.whl", hash = "sha256:cdedb1a67c075f58f47a413ec5846bf8d532a83a71f0c51ec49ce9b5bfe2a519", size = 105454 },
+    { url = "https://files.pythonhosted.org/packages/ab/51/a5f26a38c3ebe95a6e549f18756bb090754e31ca8f09d963ca271d771688/azure_ai_documentintelligence-1.0.1-py3-none-any.whl", hash = "sha256:0b6fcc99ff343dd8359accd63576f35047dd18cc89b5fd74414fe0bd87d8e566", size = 106040 },
 ]
 
 [[package]]
@@ -129,11 +129,11 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "azure-ai-documentintelligence", specifier = "==1.0.0" },
+    { name = "azure-ai-documentintelligence", specifier = ">=1.0.0b4" },
     { name = "azure-cognitiveservices-speech", specifier = "==1.42.0" },
     { name = "azure-identity", specifier = "==1.21.0" },
     { name = "openai", specifier = "==1.66.3" },
-    { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "python-dotenv", specifier = "==1.1.0" },
     { name = "streamlit", specifier = "==1.43.2" },
     { name = "tiktoken", specifier = "==0.9.0" },
 ]
