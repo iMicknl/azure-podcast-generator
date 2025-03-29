@@ -100,7 +100,7 @@ class AzureOpenAIProvider(LLMProvider):
         self.api_key = kwargs.get("api_key", os.environ.get("AZURE_OPENAI_KEY"))
         self.endpoint = kwargs.get("endpoint", os.environ.get("AZURE_OPENAI_ENDPOINT"))
         self.model = kwargs.get(
-            "model", os.environ.get("AZURE_OPENAI_MODEL_DEPLOYMENT", "gpt-4")
+            "model", os.environ.get("AZURE_OPENAI_MODEL_DEPLOYMENT", "gpt-4o")
         )
         self.api_version = kwargs.get("api_version", AZURE_OPENAI_API_VERSION)
         self.temperature = kwargs.get("temperature", 0.7)
