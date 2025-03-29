@@ -14,7 +14,7 @@ from utils.cost import (
 )
 from utils.identity import check_claim_for_tenant
 
-from app.utils.llm import get_encoding
+from .utils.llm import get_encoding
 
 # optional: only allow specific tenants to access the app (using Azure Entra ID)
 headers = st.context.headers
