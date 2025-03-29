@@ -6,15 +6,14 @@ import os
 import streamlit as st
 from const import AZURE_HD_VOICES, LOGGER
 from dotenv import find_dotenv, load_dotenv
+from profiles import PROFILES
 from utils.cost import (
     calculate_azure_ai_speech_costs,
     calculate_azure_document_intelligence_costs,
     calculate_azure_openai_costs,
 )
-from utils.document import DocumentResponse, document_to_markdown
 from utils.identity import check_claim_for_tenant
-from utils.llm import document_to_podcast_script, get_encoding
-from utils.speech import podcast_script_to_ssml, text_to_speech
+from utils.llm import get_encoding
 
 # optional: only allow specific tenants to access the app (using Azure Entra ID)
 headers = st.context.headers
@@ -50,6 +49,14 @@ st.info(
 final_audio = None
 form = st.empty()
 form_container = form.container()
+
+# Profile selection
+selected_profile_name = form_container.selectbox(
+    "Profile",
+    options=list(PROFILES.keys()),
+    index=0,
+    help="Select a profile to use different combinations of document processing, LLM, and speech providers",
+)
 
 # Podcast title input
 podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
@@ -92,6 +99,7 @@ with form_container.expander("Advanced options", expanded=False):
         step=500,
         help="Select the maximum number of tokens to be used for generating the podcast script. Adjust this according to your OpenAI quota.",
     )
+
 # Submit button
 generate_podcast = form_container.button(
     "Generate Podcast", type="primary", disabled=not uploaded_file
@@ -101,9 +109,14 @@ if uploaded_file and generate_podcast:
     bytes_data = uploaded_file.read()
     form.empty()
 
+    # Get the selected profile and create provider instances
+    profile = PROFILES[selected_profile_name]
+    providers = profile.create_providers()
+
     status_container = st.empty()
     with status_container.status(
-        "Processing document with Azure Document Intelligence...", expanded=False
+        f"Processing document with {profile.document_provider.__name__}...",
+        expanded=False,
     ) as status:
         LOGGER.info(
             f"Processing document: {uploaded_file.name}, type: {uploaded_file.type}"
@@ -119,14 +132,14 @@ if uploaded_file and generate_podcast:
             "application/vnd.ms-powerpoint",
             "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         ]:
-            document_response = document_to_markdown(bytes_data)
+            document_response = providers["document"].document_to_markdown(bytes_data)
         else:
-            document_response = DocumentResponse(
+            document_response = providers["document"].DocumentResponse(
                 markdown=bytes_data.decode("utf-8"), pages=0
             )
 
         status.update(
-            label="Analyzing document and generating podcast script with Azure OpenAI...",
+            label=f"Analyzing document and generating podcast script with {profile.llm_provider.__name__}...",
             state="running",
             expanded=False,
         )
@@ -135,7 +148,7 @@ if uploaded_file and generate_podcast:
         LOGGER.info(f"Generating podcast script. Document tokens: {num_tokens}")
 
         # Convert input document to podcast script
-        podcast_response = document_to_podcast_script(
+        podcast_response = providers["llm"].document_to_podcast_script(
             document=document_response.markdown,
             title=podcast_title,
             voice_1=voice_1,
@@ -148,14 +161,18 @@ if uploaded_file and generate_podcast:
             st.markdown(f"**{item['name']}**: {item['message']}")
 
         status.update(
-            label="Generating podcast using Azure AI Speech...",
+            label=f"Generating podcast using {profile.speech_provider.__name__}...",
             state="running",
             expanded=False,
         )
 
         # Convert podcast script to audio
-        ssml = podcast_script_to_ssml(podcast_response.podcast)
-        audio = text_to_speech(ssml)
+        ssml = providers["speech"].podcast_script_to_ssml(podcast_response.podcast)
+        try:
+            audio = providers["speech"].text_to_speech(ssml)
+        except NotImplementedError as e:
+            st.error(str(e))
+            st.stop()
 
         status.update(
             label="Calculating Azure costs...",
@@ -163,7 +180,7 @@ if uploaded_file and generate_podcast:
             expanded=False,
         )
 
-        # Calculate costs
+        # Calculate costs (Note: This still uses Azure costs - could be made provider-specific)
         azure_document_intelligence_costs = calculate_azure_document_intelligence_costs(
             pages=document_response.pages
         )
