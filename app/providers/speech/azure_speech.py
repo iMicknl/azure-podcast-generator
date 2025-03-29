@@ -14,20 +14,17 @@ class AzureSpeechProvider(SpeechProvider):
 
     def __init__(self, **kwargs):
         """Initialize the Azure Speech provider."""
-        self.speech_key = kwargs.get("speech_key", os.environ.get("AZURE_SPEECH_KEY"))
-        self.speech_region = kwargs.get(
-            "speech_region", os.environ.get("AZURE_SPEECH_REGION")
-        )
-        self.speech_resource_id = kwargs.get(
-            "speech_resource_id", os.environ.get("AZURE_SPEECH_RESOURCE_ID")
-        )
+        self.speech_key = os.environ.get("AZURE_SPEECH_KEY")
+        self.speech_region = os.environ.get("AZURE_SPEECH_REGION")
+        self.speech_resource_id = os.environ.get("AZURE_SPEECH_RESOURCE_ID")
         self.voices = kwargs.get("voices", AZURE_HD_VOICES)
         self.voice_1 = kwargs.get("voice_1", "Andrew")
         self.voice_2 = kwargs.get("voice_2", "Ava")
-        self.output_format = kwargs.get(
-            "output_format",
-            speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm,
-        )
+        self.output_format = speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm
+
+        print(self.speech_key)
+        print(self.speech_region)
+        print(self.speech_resource_id)
 
     @classmethod
     def render_options_ui(cls, st) -> dict[str, Any]:
@@ -69,11 +66,16 @@ class AzureSpeechProvider(SpeechProvider):
                 subscription=self.speech_key,
                 region=self.speech_region,
             )
+
+            print("Using speech key")
         else:
             speech_config = speechsdk.SpeechConfig(
                 auth_token=get_speech_token(self.speech_resource_id),
                 region=self.speech_region,
             )
+
+            print("Using speech token")
+            print(get_speech_token(self.speech_resource_id))
 
         audio_config = None  # enable in-memory audio stream
 
