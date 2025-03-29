@@ -5,7 +5,10 @@ from dataclasses import dataclass
 
 import streamlit as st
 from azure.ai.documentintelligence import DocumentIntelligenceClient
-from azure.ai.documentintelligence.models import AnalyzeDocumentRequest, ContentFormat
+from azure.ai.documentintelligence.models import (
+    AnalyzeDocumentRequest,
+    DocumentContentFormat,
+)
 from azure.core.credentials import AzureKeyCredential
 from utils.identity import get_azure_credential
 
@@ -36,7 +39,7 @@ def document_to_markdown(file: bytes) -> DocumentResponse:
     poller = doc_client.begin_analyze_document(
         "prebuilt-layout",
         document_request,
-        output_content_format=ContentFormat.MARKDOWN,
+        output_content_format=DocumentContentFormat.MARKDOWN,
     )
     result = poller.result()
 
