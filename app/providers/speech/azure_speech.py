@@ -1,6 +1,7 @@
 """Azure Speech provider implementation."""
 
 import os
+from typing import Any
 
 import azure.cognitiveservices.speech as speechsdk
 from const import AZURE_HD_VOICES, LOGGER
@@ -21,10 +22,38 @@ class AzureSpeechProvider(SpeechProvider):
             "speech_resource_id", os.environ.get("AZURE_SPEECH_RESOURCE_ID")
         )
         self.voices = kwargs.get("voices", AZURE_HD_VOICES)
+        self.voice_1 = kwargs.get("voice_1", "Andrew")
+        self.voice_2 = kwargs.get("voice_2", "Ava")
         self.output_format = kwargs.get(
             "output_format",
             speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm,
         )
+
+    @classmethod
+    def render_options_ui(cls, st) -> dict[str, Any]:
+        """Render Azure Speech specific options using Streamlit widgets."""
+        st.subheader("Speech Options")
+
+        options = {}
+        col1, col2 = st.columns(2)
+
+        with col1:
+            options["voice_1"] = st.selectbox(
+                "Voice 1",
+                options=list(AZURE_HD_VOICES.keys()),
+                index=list(AZURE_HD_VOICES.keys()).index("Andrew"),
+                help="The first voice used in the podcast",
+            )
+
+        with col2:
+            options["voice_2"] = st.selectbox(
+                "Voice 2",
+                options=list(AZURE_HD_VOICES.keys()),
+                index=list(AZURE_HD_VOICES.keys()).index("Ava"),
+                help="The second voice used in the podcast",
+            )
+
+        return options
 
     def text_to_speech(self, ssml: str) -> bytes:
         """Convert SSML to audio using Azure Speech Service.
@@ -98,7 +127,9 @@ class AzureSpeechProvider(SpeechProvider):
                 .replace('"', "&quot;")
                 .replace("'", "&apos;")
             )
-            ssml += f"<voice name='{self.voices[line['name']]}'>{message}</voice>"
+            # Use the configured voices instead of the ones from the script
+            voice = self.voice_1 if line["name"] == "Andrew" else self.voice_2
+            ssml += f"<voice name='{self.voices[voice]}'>{message}</voice>"
 
         ssml += "</speak>"
 

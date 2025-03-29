@@ -2,6 +2,7 @@
 
 import json
 import os
+from typing import Any
 
 import streamlit as st
 import tiktoken
@@ -99,10 +100,41 @@ class AzureOpenAIProvider(LLMProvider):
         self.api_key = kwargs.get("api_key", os.environ.get("AZURE_OPENAI_KEY"))
         self.endpoint = kwargs.get("endpoint", os.environ.get("AZURE_OPENAI_ENDPOINT"))
         self.model = kwargs.get(
-            "model", os.environ.get("AZURE_OPENAI_MODEL_DEPLOYMENT", "gpt-4o")
+            "model", os.environ.get("AZURE_OPENAI_MODEL_DEPLOYMENT", "gpt-4")
         )
         self.api_version = kwargs.get("api_version", AZURE_OPENAI_API_VERSION)
         self.temperature = kwargs.get("temperature", 0.7)
+        self.max_tokens = kwargs.get("max_tokens", 8000)
+
+    @classmethod
+    def render_options_ui(cls, st) -> dict[str, Any]:
+        """Render Azure OpenAI specific options using Streamlit widgets."""
+        st.subheader("LLM Options")
+
+        options = {}
+        col1, col2 = st.columns(2)
+
+        with col1:
+            options["temperature"] = st.slider(
+                "Temperature",
+                min_value=0.0,
+                max_value=2.0,
+                value=0.7,
+                step=0.1,
+                help="Controls randomness in the generation. Higher values make the output more random, lower values make it more focused and deterministic.",
+            )
+
+        with col2:
+            options["max_tokens"] = st.number_input(
+                "Max Tokens",
+                min_value=1000,
+                max_value=128000,
+                value=8000,
+                step=1000,
+                help="Maximum number of tokens (words/subwords) to generate in the response",
+            )
+
+        return options
 
     def document_to_podcast_script(
         self,
@@ -110,7 +142,6 @@ class AzureOpenAIProvider(LLMProvider):
         title: str = "AI in Action",
         voice_1: str = "Andrew",
         voice_2: str = "Emma",
-        max_tokens: int = 8000,
     ) -> PodcastScriptResponse:
         """Convert document to podcast script using Azure OpenAI.
 
@@ -119,7 +150,6 @@ class AzureOpenAIProvider(LLMProvider):
             title: The podcast title
             voice_1: The first voice name
             voice_2: The second voice name
-            max_tokens: Maximum tokens for generation
 
         Returns:
             PodcastScriptResponse with generated podcast script and usage metrics
@@ -154,7 +184,7 @@ class AzureOpenAIProvider(LLMProvider):
             model=self.model,
             temperature=self.temperature,
             response_format={"type": "json_schema", "json_schema": JSON_SCHEMA},
-            max_tokens=max_tokens,
+            max_tokens=self.max_tokens,
         )
 
         message = chat_completion.choices[0].message.content

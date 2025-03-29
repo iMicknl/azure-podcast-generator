@@ -1,6 +1,6 @@
 """Profile configuration system for the podcast generator."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from providers.document.azure_document_intelligence import (
     AzureDocumentIntelligenceProvider,
@@ -21,17 +21,40 @@ class Profile:
     document_provider: type[DocumentProvider]
     llm_provider: type[LLMProvider]
     speech_provider: type[SpeechProvider]
-    document_provider_config: dict = None
-    llm_provider_config: dict = None
-    speech_provider_config: dict = None
+    document_provider_config: dict = field(default_factory=dict)
+    llm_provider_config: dict = field(default_factory=dict)
+    speech_provider_config: dict = field(default_factory=dict)
 
-    def create_providers(self):
-        """Create provider instances from the profile configuration."""
+    def get_provider_classes(self) -> dict[str, type]:
+        """Get all provider classes in this profile."""
         return {
-            "document": self.document_provider(**(self.document_provider_config or {})),
-            "llm": self.llm_provider(**(self.llm_provider_config or {})),
-            "speech": self.speech_provider(**(self.speech_provider_config or {})),
+            "document": self.document_provider,
+            "llm": self.llm_provider,
+            "speech": self.speech_provider,
         }
+
+    def create_providers(self, **kwargs):
+        """Create provider instances from the profile configuration.
+
+        Args:
+            **kwargs: Provider options from UI, organized by provider name
+        """
+        providers = {}
+
+        # Create each provider with its config plus any UI options
+        doc_config = self.document_provider_config.copy()
+        doc_config.update(kwargs.get("document", {}))
+        providers["document"] = self.document_provider(**doc_config)
+
+        llm_config = self.llm_provider_config.copy()
+        llm_config.update(kwargs.get("llm", {}))
+        providers["llm"] = self.llm_provider(**llm_config)
+
+        speech_config = self.speech_provider_config.copy()
+        speech_config.update(kwargs.get("speech", {}))
+        providers["speech"] = self.speech_provider(**speech_config)
+
+        return providers
 
 
 # Default Azure profile using all Azure services
