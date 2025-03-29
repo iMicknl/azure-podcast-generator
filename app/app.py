@@ -148,7 +148,7 @@ if uploaded_file and generate_podcast:
             st.markdown(f"**{item['name']}**: {item['message']}")
 
         status.update(
-            label="Generating podcast using Azure Speech (HD voices)...",
+            label="Generating podcast using Azure AI Speech...",
             state="running",
             expanded=False,
         )
@@ -158,7 +158,7 @@ if uploaded_file and generate_podcast:
         audio = text_to_speech(ssml)
 
         status.update(
-            label="Calculate Azure costs...",
+            label="Calculating Azure costs...",
             state="running",
             expanded=False,
         )
@@ -197,7 +197,7 @@ if final_audio:
 
     with costs_tab:
         st.markdown(
-            f"**Azure: Document Intelligence**: ${azure_document_intelligence_costs:.2f}"
+            f"**Azure Document Intelligence**: ${azure_document_intelligence_costs:.2f}"
         )
         st.markdown(f"**Azure OpenAI Service**: ${azure_openai_costs:.2f}")
         st.markdown(f"**Azure AI Speech**: ${azure_ai_speech_costs:.2f}")

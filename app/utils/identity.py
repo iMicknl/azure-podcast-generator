@@ -39,7 +39,7 @@ def get_access_token(
 
 
 def get_speech_token(resource_id: str) -> str:
-    """Create Azure Speech Service token."""
+    """Create  Service token."""
 
     access_token = get_access_token()
     # You need to include the "aad#" prefix and the "#" (hash) separator between resource ID and Microsoft Entra access token.
