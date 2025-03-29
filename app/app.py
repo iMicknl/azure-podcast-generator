@@ -4,7 +4,7 @@ import logging
 import os
 
 import streamlit as st
-from const import AZURE_HD_VOICES, LOGGER
+from const import LOGGER
 from dotenv import find_dotenv, load_dotenv
 from profiles import PROFILES
 from utils.cost import (
@@ -13,7 +13,8 @@ from utils.cost import (
     calculate_azure_openai_costs,
 )
 from utils.identity import check_claim_for_tenant
-from utils.llm import get_encoding
+
+from app.utils.llm import get_encoding
 
 # optional: only allow specific tenants to access the app (using Azure Entra ID)
 headers = st.context.headers
@@ -58,6 +59,10 @@ selected_profile_name = form_container.selectbox(
     help="Select a profile to use different combinations of document processing, LLM, and speech providers",
 )
 
+# Get the selected profile and create provider instances
+profile = PROFILES[selected_profile_name]
+providers = profile.create_providers()
+
 # Podcast title input
 podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
 
@@ -69,36 +74,11 @@ uploaded_file = form_container.file_uploader(
 )
 
 # Advanced options expander
+provider_options = {}
 with form_container.expander("Advanced options", expanded=False):
-    col1, col2 = st.columns(2)
-
-    # Voice 1 select box
-    voice_1 = col1.selectbox(
-        "Voice 1",
-        options=list(AZURE_HD_VOICES.keys()),
-        index=list(AZURE_HD_VOICES.keys()).index("Andrew")
-        if "Andrew" in AZURE_HD_VOICES
-        else 0,
-    )
-
-    # Voice 2 select box
-    voice_2 = col2.selectbox(
-        "Voice 2",
-        options=list(AZURE_HD_VOICES.keys()),
-        index=list(AZURE_HD_VOICES.keys()).index("Ava")
-        if "Ava" in AZURE_HD_VOICES
-        else 1,
-    )
-
-    # Max tokens slider
-    max_tokens = st.slider(
-        "Max Tokens",
-        min_value=1000,
-        max_value=32000,
-        value=8000,
-        step=500,
-        help="Select the maximum number of tokens to be used for generating the podcast script. Adjust this according to your OpenAI quota.",
-    )
+    # Get configurable options from each provider
+    for provider_name, provider_class in profile.get_provider_classes().items():
+        provider_options[provider_name] = provider_class.render_options_ui(st)
 
 # Submit button
 generate_podcast = form_container.button(
@@ -109,9 +89,8 @@ if uploaded_file and generate_podcast:
     bytes_data = uploaded_file.read()
     form.empty()
 
-    # Get the selected profile and create provider instances
-    profile = PROFILES[selected_profile_name]
-    providers = profile.create_providers()
+    # Create provider instances with the UI-configured options
+    providers = profile.create_providers(**provider_options)
 
     status_container = st.empty()
     with status_container.status(
@@ -147,13 +126,17 @@ if uploaded_file and generate_podcast:
         num_tokens = len(get_encoding().encode(document_response.markdown))
         LOGGER.info(f"Generating podcast script. Document tokens: {num_tokens}")
 
+        # Get voice names from speech provider config
+        voice_config = provider_options.get("speech", {})
+        voice_1 = voice_config.get("voice_1", "Andrew")
+        voice_2 = voice_config.get("voice_2", "Emma")
+
         # Convert input document to podcast script
         podcast_response = providers["llm"].document_to_podcast_script(
             document=document_response.markdown,
             title=podcast_title,
             voice_1=voice_1,
             voice_2=voice_2,
-            max_tokens=max_tokens,
         )
 
         podcast_script = podcast_response.podcast["script"]
