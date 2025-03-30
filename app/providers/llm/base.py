@@ -12,6 +12,7 @@ class PodcastScriptResponse:
 
     podcast: dict
     usage: dict | None = None
+    cost: float = 0.0  # Cost in USD for the LLM processing
 
 
 class LLMProvider(Provider):

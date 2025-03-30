@@ -7,11 +7,6 @@ import streamlit as st
 from const import LOGGER
 from dotenv import find_dotenv, load_dotenv
 from profiles import PROFILES
-from utils.cost import (
-    calculate_azure_ai_speech_costs,
-    calculate_azure_document_intelligence_costs,
-    calculate_azure_openai_costs,
-)
 from utils.identity import check_claim_for_tenant
 from utils.llm import get_encoding
 
@@ -149,25 +144,17 @@ if uploaded_file and generate_podcast:
 
         # Convert podcast script to audio
         ssml = providers["speech"].podcast_script_to_ssml(podcast_response.podcast)
-        audio = providers["speech"].text_to_speech(ssml)
+        speech_response = providers["speech"].text_to_speech(ssml)
 
         status.update(
-            label="Calculating Azure costs...",
+            label="Calculating costs...",
             state="running",
             expanded=False,
         )
 
-        # Calculate costs (Note: This still uses Azure costs - could be made provider-specific)
-        azure_document_intelligence_costs = calculate_azure_document_intelligence_costs(
-            pages=document_response.pages
-        )
-        azure_openai_costs = calculate_azure_openai_costs(
-            input_tokens=podcast_response.usage.prompt_tokens,
-            output_tokens=podcast_response.usage.completion_tokens,
-        )
-
-        azure_ai_speech_costs = calculate_azure_ai_speech_costs(
-            characters=sum(len(item["message"]) for item in podcast_script)
+        # Get costs from provider responses
+        total_cost = (
+            document_response.cost + podcast_response.cost + speech_response.cost
         )
 
         status.update(label="Finished", state="complete", expanded=False)
@@ -182,7 +169,7 @@ if final_audio:
     audio_tab, transcript_tab, costs_tab = st.tabs(["Audio", "Transcript", "Costs"])
 
     with audio_tab:
-        st.audio(audio, format="audio/wav")
+        st.audio(speech_response.audio, format="audio/wav")
 
     with transcript_tab:
         podcast_script = podcast_response.podcast["script"]
@@ -190,14 +177,10 @@ if final_audio:
             st.markdown(f"**{item['name']}**: {item['message']}")
 
     with costs_tab:
-        st.markdown(
-            f"**Azure Document Intelligence**: ${azure_document_intelligence_costs:.2f}"
-        )
-        st.markdown(f"**Azure OpenAI Service**: ${azure_openai_costs:.2f}")
-        st.markdown(f"**Azure AI Speech**: ${azure_ai_speech_costs:.2f}")
-        st.markdown(
-            f"**Total costs**: ${(azure_ai_speech_costs + azure_openai_costs + azure_document_intelligence_costs):.2f}"
-        )
+        st.markdown(f"**Document Processing**: ${document_response.cost:.2f}")
+        st.markdown(f"**LLM Processing**: ${podcast_response.cost:.2f}")
+        st.markdown(f"**Speech Synthesis**: ${speech_response.cost:.2f}")
+        st.markdown(f"**Total costs**: ${total_cost:.2f}")
 
 # Footer
 st.divider()

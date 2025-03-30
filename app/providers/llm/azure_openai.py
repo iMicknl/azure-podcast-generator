@@ -77,7 +77,7 @@ JSON_SCHEMA = {
                     "properties": {
                         "name": {
                             "type": "string",
-                            "description": "Name of the host. Use the provided names, don't change the casing or name.",
+                            "description": "Name of the host. Use speaker_1 or speaker_2.",
                         },
                         "message": {"type": "string"},
                     },
@@ -138,16 +138,16 @@ class AzureOpenAIProvider(LLMProvider):
         self,
         document: str,
         title: str = "AI in Action",
-        voice_1: str = "Andrew",
-        voice_2: str = "Ava",
+        speaker_1: str = "Andrew",
+        speaker_2: str = "Ava",
     ) -> PodcastScriptResponse:
         """Convert document to podcast script using Azure OpenAI.
 
         Args:
             document: The document content as string
             title: The podcast title
-            voice_1: The first voice name
-            voice_2: The second voice name
+            speaker_1: The first speaker name
+            speaker_2: The second speaker name
 
         Returns:
             PodcastScriptResponse with generated podcast script and usage metrics
@@ -170,7 +170,7 @@ class AzureOpenAIProvider(LLMProvider):
             messages=[
                 {
                     "role": "system",
-                    "content": PROMPT.format(voice_1=voice_1, voice_2=voice_2),
+                    "content": PROMPT.format(speaker_1=speaker_1, speaker_2=speaker_2),
                 },
                 # Wrap the document in <documents> tag for Prompt Shield Indirect attacks
                 # https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cindirect%2Cpython-new#embedding-documents-in-your-prompt
@@ -188,7 +188,14 @@ class AzureOpenAIProvider(LLMProvider):
         message = chat_completion.choices[0].message.content
         json_message = json.loads(message)
 
-        return PodcastScriptResponse(podcast=json_message, usage=chat_completion.usage)
+        # Calculate cost: $2.75 per 1M input tokens, $11 per 1M output tokens
+        cost = 2.75 * (chat_completion.usage.prompt_tokens / 1_000_000) + 11 * (
+            chat_completion.usage.completion_tokens / 1_000_000
+        )
+
+        return PodcastScriptResponse(
+            podcast=json_message, usage=chat_completion.usage, cost=cost
+        )
 
 
 @st.cache_resource

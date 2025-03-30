@@ -12,6 +12,7 @@ class DocumentResponse:
 
     markdown: str
     pages: int
+    cost: float = 0.0  # Cost in USD for the document processing
 
 
 class DocumentProvider(Provider):
