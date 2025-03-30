@@ -1,9 +1,10 @@
-"""Base speech provider interface."""
+"""Speech provider interface."""
 
 from abc import abstractmethod
 from dataclasses import dataclass
 
 from providers.base import Provider
+from providers.llm.base import PodcastContent
 
 
 @dataclass
@@ -30,11 +31,11 @@ class SpeechProvider(Provider):
         pass
 
     @abstractmethod
-    def podcast_script_to_ssml(self, podcast: dict) -> str:
+    def podcast_script_to_ssml(self, podcast: PodcastContent) -> str:
         """Convert podcast script to SSML.
 
         Args:
-            podcast: The podcast script data
+            podcast: The podcast script data including configuration and dialogue
 
         Returns:
             SSML string for speech synthesis
