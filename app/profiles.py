@@ -79,7 +79,7 @@ AZURE_MULTITALKER = Profile(
 )
 
 # Dictionary of available profiles
-PROFILES = {
+PROFILES: dict[str, Profile] = {
     "Azure": AZURE_PROFILE,
     "Azure (experimental)": AZURE_MULTITALKER,
 }
