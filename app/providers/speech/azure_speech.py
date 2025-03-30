@@ -129,8 +129,9 @@ class AzureSpeechProvider(SpeechProvider):
                 .replace('"', "&quot;")
                 .replace("'", "&apos;")
             )
-            # Use the configured voices instead of the ones from the script
-            voice = self.voice_1 if line["name"] == "Andrew" else self.voice_2
+
+            # Map speakers to the configured voices
+            voice = self.voice_1 if line["speaker"] == "speaker_1" else self.voice_2
             ssml += f"<voice name='{self.voices[voice]}'>{message}</voice>"
 
         ssml += "</speak>"

@@ -30,7 +30,7 @@ Create a highly engaging podcast script between two people based on the input te
 - A conversational podcast script in structured JSON.
 - Include informal expressions and pauses.
 - Clearly mark speaker turns.
-- Name the hosts {voice_1} and {voice_2}.
+- Name the hosts {speaker_1} and {speaker_2}.
 
 # Examples
 
@@ -39,9 +39,9 @@ Create a highly engaging podcast script between two people based on the input te
 - Podcast Title: \"Exploring the Wonders of Space\"
 
 **Output:**
-- Speaker 1: \"Hey everyone, welcome to 'Exploring the Wonders of Space!' I'm [Name], and with me is [Name].\"
-- Speaker 2: \"Hey! Uhm, I'm super excited about today's topic. Did you see the latest on the new satellite launch?\"
-- Speaker 1: \"Wow, yes! It's incredible. I mean, imagine the data we'll get!\"
+- speaker_1: \"Hey everyone, welcome to 'Exploring the Wonders of Space!' I'm [Name], and with me is [Name].\"
+- speaker_2: \"Hey! Uhm, I'm super excited about today's topic. Did you see the latest on the new satellite launch?\"
+- speaker_1: \"Wow, yes! It's incredible. I mean, imagine the data we'll get!\"
 - (Continue with discussion, incorporating humor and informal language)
 
 # Notes
@@ -75,13 +75,13 @@ JSON_SCHEMA = {
                 "items": {
                     "type": "object",
                     "properties": {
-                        "name": {
+                        "speaker": {
                             "type": "string",
-                            "description": "Name of the host. Use speaker_1 or speaker_2.",
+                            "description": "Speaker: use speaker_1 or speaker_2 as a key, don't use the full name.",
                         },
                         "message": {"type": "string"},
                     },
-                    "required": ["name", "message"],
+                    "required": ["speaker", "message"],
                     "additionalProperties": False,
                 },
             },
@@ -105,14 +105,22 @@ class AzureOpenAIProvider(LLMProvider):
         self.api_version = kwargs.get("api_version", AZURE_OPENAI_API_VERSION)
         self.temperature = kwargs.get("temperature", 0.7)
         self.max_tokens = kwargs.get("max_tokens", 8000)
+        self.speaker_1 = kwargs.get("speaker_1", "Andrew")
+        self.speaker_2 = kwargs.get("speaker_2", "Ava")
 
     @classmethod
-    def render_options_ui(cls, st) -> dict[str, Any]:
+    def render_options_ui(cls, st: st) -> dict[str, Any]:
         """Render Azure OpenAI specific options using Streamlit widgets."""
         options = {}
         col1, col2 = st.columns(2)
 
         with col1:
+            options["speaker_1"] = st.text_input(
+                "Speaker 1 Name",
+                value="Andrew",
+                help="Name of the first speaker in the podcast script",
+            )
+
             options["temperature"] = st.slider(
                 "Temperature",
                 min_value=0.0,
@@ -121,8 +129,13 @@ class AzureOpenAIProvider(LLMProvider):
                 step=0.1,
                 help="Controls randomness in the generation. Higher values make the output more random, lower values make it more focused and deterministic.",
             )
-
         with col2:
+            options["speaker_2"] = st.text_input(
+                "Speaker 2 Name",
+                value="Ava",
+                help="Name of the second speaker in the podcast script",
+            )
+
             options["max_tokens"] = st.number_input(
                 "Max Tokens",
                 min_value=1000,
@@ -193,9 +206,7 @@ class AzureOpenAIProvider(LLMProvider):
             chat_completion.usage.completion_tokens / 1_000_000
         )
 
-        return PodcastScriptResponse(
-            podcast=json_message, usage=chat_completion.usage, cost=cost
-        )
+        return PodcastScriptResponse(podcast=json_message, cost=cost)
 
 
 @st.cache_resource

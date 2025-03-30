@@ -11,7 +11,6 @@ class PodcastScriptResponse:
     """Podcast script response with generated content and usage metrics."""
 
     podcast: dict
-    usage: dict | None = None
     cost: float = 0.0  # Cost in USD for the LLM processing
 
 
