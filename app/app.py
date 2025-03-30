@@ -150,11 +150,7 @@ if uploaded_file and generate_podcast:
 
         # Convert podcast script to audio
         ssml = providers["speech"].podcast_script_to_ssml(podcast_response.podcast)
-        try:
-            audio = providers["speech"].text_to_speech(ssml)
-        except NotImplementedError as e:
-            st.error(str(e))
-            st.stop()
+        audio = providers["speech"].text_to_speech(ssml)
 
         status.update(
             label="Calculating Azure costs...",

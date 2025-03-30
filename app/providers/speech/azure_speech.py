@@ -22,10 +22,6 @@ class AzureSpeechProvider(SpeechProvider):
         self.voice_2 = kwargs.get("voice_2", "Ava")
         self.output_format = speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm
 
-        print(self.speech_key)
-        print(self.speech_region)
-        print(self.speech_resource_id)
-
     @classmethod
     def render_options_ui(cls, st) -> dict[str, Any]:
         """Render Azure Speech specific options using Streamlit widgets."""

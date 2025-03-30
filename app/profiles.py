@@ -33,13 +33,18 @@ class Profile:
             "speech": self.speech_provider,
         }
 
-    def create_providers(self, **kwargs):
+    def create_providers(
+        self, **kwargs
+    ) -> dict[str, DocumentProvider | LLMProvider | SpeechProvider]:
         """Create provider instances from the profile configuration.
 
         Args:
             **kwargs: Provider options from UI, organized by provider name
+
+        Returns:
+            A dictionary mapping provider types to their instances
         """
-        providers = {}
+        providers: dict[str, DocumentProvider | LLMProvider | SpeechProvider] = {}
 
         # Create each provider with its config plus any UI options
         doc_config = self.document_provider_config.copy()
