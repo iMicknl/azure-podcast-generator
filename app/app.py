@@ -56,7 +56,7 @@ col1, col2, col3 = form_container.columns(3)
 
 with col1:
     selected_doc_provider = st.selectbox(
-        "Document Provider",
+        "Document Processing Provider",
         options=list(DOCUMENT_PROVIDERS.keys()),
         index=0,
         format_func=lambda x: x,
@@ -67,7 +67,7 @@ with col1:
 
 with col2:
     selected_llm_provider = st.selectbox(
-        "LLM Provider",
+        "Script Generation Provider",
         options=list(LLM_PROVIDERS.keys()),
         index=0,
         format_func=lambda x: x,
