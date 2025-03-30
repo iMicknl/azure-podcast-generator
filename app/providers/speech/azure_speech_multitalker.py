@@ -3,7 +3,7 @@
 from providers.speech.base import SpeechProvider
 
 
-class BasicSpeechProvider(SpeechProvider):
+class AzureSpeechMultitalker(SpeechProvider):
     """Basic speech provider for text-to-speech conversion.
 
     This is a template implementation that shows how to implement a custom
@@ -13,11 +13,7 @@ class BasicSpeechProvider(SpeechProvider):
 
     def __init__(self, **kwargs):
         """Initialize the Basic Speech provider."""
-        self.voices = kwargs.get(
-            "voices", {"Andrew": "en-US-Male-1", "Emma": "en-US-Female-1"}
-        )
-        self.rate = kwargs.get("rate", "medium")
-        self.pitch = kwargs.get("pitch", "medium")
+        self.voices = kwargs.get("voices", {"Andrew": "andrew", "Ava": "ava"})
 
     def text_to_speech(self, ssml: str) -> bytes:
         """Convert SSML to audio.
@@ -38,18 +34,25 @@ class BasicSpeechProvider(SpeechProvider):
         )
 
     def podcast_script_to_ssml(self, podcast: dict) -> str:
-        """Convert podcast script to basic SSML.
+        """Convert podcast script to multitalker SSML.
 
         Args:
             podcast: The podcast script data
 
         Returns:
-            SSML string for speech synthesis
+            SSML string for speech synthesis with multitalker support
         """
         podcast_script = podcast["script"]
         language = podcast.get("config", {}).get("language", "en-US")
-        ssml = '<?xml version="1.0"?>'
-        ssml += f'<speak version="1.1" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="{language}">'
+
+        # Start with the SSML header and multitalker-specific namespace
+        ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
+        ssml += 'xmlns:mstts="https://www.w3.org/2001/mstts" '
+        ssml += f'xml:lang="{language}">'
+
+        # Create the voice wrapper for the entire dialog
+        ssml += '<voice name="en-US-MultiTalker-Ava-Andrew:DragonHDLatestNeural">'
+        ssml += "<mstts:dialog>"
 
         for line in podcast_script:
             # Escape SSML special characters
@@ -62,15 +65,10 @@ class BasicSpeechProvider(SpeechProvider):
                 .replace("'", "&apos;")
             )
 
-            # Add basic SSML markup with voice, rate, and pitch
-            voice_name = self.voices[line["name"]]
-            ssml += (
-                f'<voice name="{voice_name}">'
-                f'<prosody rate="{self.rate}" pitch="{self.pitch}">'
-                f"{message}"
-                "</prosody>"
-                "</voice>"
-            )
+            # Convert speaker name to lowercase for the turn attribute
+            speaker = line["name"].lower()
+            ssml += f'<mstts:turn speaker="{speaker}">{message}</mstts:turn>'
 
-        ssml += "</speak>"
+        # Close all tags
+        ssml += "</mstts:dialog></voice></speak>"
         return ssml
