@@ -1,7 +1,7 @@
 [project]
 name = "azure-podcast-generator"
 version = "0.1.0"
-description = "Generate an engaging podcast based on your document using Azure OpenAI and Azure Speech."
+description = "Generate an engaging podcast based on your document using Azure OpenAI and Azure AI Speech."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
