@@ -2,6 +2,7 @@
 
 import logging
 import os
+import xml.dom.minidom
 
 import streamlit as st
 from const import LOGGER
@@ -119,22 +120,12 @@ if uploaded_file and generate_podcast:
         num_tokens = len(get_encoding().encode(document_response.markdown))
         LOGGER.info(f"Generating podcast script. Document tokens: {num_tokens}")
 
-        # Get voice names from speech provider config
-        voice_config = provider_options.get("speech", {})
-        voice_1 = voice_config.get("voice_1", "Andrew")
-        voice_2 = voice_config.get("voice_2", "Emma")
-
         # Convert input document to podcast script
         podcast_response = providers["llm"].document_to_podcast_script(
-            document=document_response.markdown,
-            title=podcast_title,
-            voice_1=voice_1,
-            voice_2=voice_2,
+            document=document_response.markdown, title=podcast_title
         )
 
         podcast_script = podcast_response.podcast["script"]
-        for item in podcast_script:
-            st.markdown(f"**{item['name']}**: {item['message']}")
 
         status.update(
             label=f"Generating podcast using {profile.speech_provider.__name__}...",
@@ -165,8 +156,10 @@ if uploaded_file and generate_podcast:
 if final_audio:
     status_container.empty()
 
-    # Create three tabs
-    audio_tab, transcript_tab, costs_tab = st.tabs(["Audio", "Transcript", "Costs"])
+    # Create four tabs
+    audio_tab, transcript_tab, ssml_tab, costs_tab = st.tabs(
+        ["Audio", "Transcript", "SSML", "Costs"]
+    )
 
     with audio_tab:
         st.audio(speech_response.audio, format="audio/wav")
@@ -174,7 +167,12 @@ if final_audio:
     with transcript_tab:
         podcast_script = podcast_response.podcast["script"]
         for item in podcast_script:
-            st.markdown(f"**{item['name']}**: {item['message']}")
+            st.markdown(f"**{item['speaker']}**: {item['message']}")
+
+    with ssml_tab:
+        # Pretty print the XML/SSML for better readability
+        pretty_ssml = xml.dom.minidom.parseString(ssml).toprettyxml(indent="  ")
+        st.code(pretty_ssml, language="xml")
 
     with costs_tab:
         st.markdown(f"**Document Processing**: ${document_response.cost:.2f}")
