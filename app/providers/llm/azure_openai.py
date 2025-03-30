@@ -111,6 +111,8 @@ class AzureOpenAIProvider(LLMProvider):
     @classmethod
     def render_options_ui(cls, st: st) -> dict[str, Any]:
         """Render Azure OpenAI specific options using Streamlit widgets."""
+        st.markdown("##### Script Generation")
+
         options = {}
         col1, col2 = st.columns(2)
 
