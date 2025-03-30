@@ -151,16 +151,12 @@ class AzureOpenAIProvider(LLMProvider):
         self,
         document: str,
         title: str = "AI in Action",
-        speaker_1: str = "Andrew",
-        speaker_2: str = "Ava",
     ) -> PodcastScriptResponse:
         """Convert document to podcast script using Azure OpenAI.
 
         Args:
             document: The document content as string
             title: The podcast title
-            speaker_1: The first speaker name
-            speaker_2: The second speaker name
 
         Returns:
             PodcastScriptResponse with generated podcast script and usage metrics
@@ -183,7 +179,9 @@ class AzureOpenAIProvider(LLMProvider):
             messages=[
                 {
                     "role": "system",
-                    "content": PROMPT.format(speaker_1=speaker_1, speaker_2=speaker_2),
+                    "content": PROMPT.format(
+                        speaker_1=self.speaker_1, speaker_2=self.speaker_2
+                    ),
                 },
                 # Wrap the document in <documents> tag for Prompt Shield Indirect attacks
                 # https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cindirect%2Cpython-new#embedding-documents-in-your-prompt
