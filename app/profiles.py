@@ -9,8 +9,8 @@ from providers.document.base import DocumentProvider
 from providers.llm.azure_openai import AzureOpenAIProvider
 from providers.llm.base import LLMProvider
 from providers.speech.azure_speech import AzureSpeechProvider
+from providers.speech.azure_speech_multitalker import AzureSpeechMultitalker
 from providers.speech.base import SpeechProvider
-from providers.speech.basic_speech import BasicSpeechProvider
 
 
 @dataclass
@@ -66,23 +66,15 @@ AZURE_PROFILE = Profile(
 )
 
 # Example profile using Azure services with basic speech
-AZURE_BASIC_SPEECH_PROFILE = Profile(
-    name="azure-basic-speech",
+AZURE_MULTITALKER = Profile(
+    name="azure-multitalker",
     document_provider=AzureDocumentIntelligenceProvider,
     llm_provider=AzureOpenAIProvider,
-    speech_provider=BasicSpeechProvider,
-    speech_provider_config={
-        "voices": {
-            "Andrew": "en-US-Male-1",
-            "Emma": "en-US-Female-1",
-        },
-        "rate": "medium",
-        "pitch": "medium",
-    },
+    speech_provider=AzureSpeechMultitalker,
 )
 
 # Dictionary of available profiles
 PROFILES = {
     "Azure": AZURE_PROFILE,
-    "azure-basic-speech": AZURE_BASIC_SPEECH_PROFILE,
+    "Azure (experimental)": AZURE_MULTITALKER,
 }

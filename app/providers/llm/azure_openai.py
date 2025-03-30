@@ -141,7 +141,7 @@ class AzureOpenAIProvider(LLMProvider):
         document: str,
         title: str = "AI in Action",
         voice_1: str = "Andrew",
-        voice_2: str = "Emma",
+        voice_2: str = "Ava",
     ) -> PodcastScriptResponse:
         """Convert document to podcast script using Azure OpenAI.
 
