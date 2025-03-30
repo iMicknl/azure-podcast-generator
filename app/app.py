@@ -5,9 +5,9 @@ import os
 import xml.dom.minidom
 
 import streamlit as st
+from configurations import CONFIGURATIONS
 from const import LOGGER
 from dotenv import find_dotenv, load_dotenv
-from profiles import PROFILES
 from utils.identity import check_claim_for_tenant
 from utils.llm import get_encoding
 
@@ -46,17 +46,17 @@ final_audio = None
 form = st.empty()
 form_container = form.container()
 
-# Profile selection
-selected_profile_name = form_container.selectbox(
-    "Profile",
-    options=list(PROFILES.keys()),
+# Configuration selection
+selected_config_name = form_container.selectbox(
+    "Configuration",
+    options=list(CONFIGURATIONS.keys()),
     index=0,
-    help="Select a profile to use different combinations of document processing, LLM, and speech providers",
+    help="Select a configuration to use different combinations of document processing, LLM, and speech providers",
 )
 
-# Get the selected profile and create provider instances
-profile = PROFILES[selected_profile_name]
-providers = profile.create_providers()
+# Get the selected configuration and create provider instances
+config = CONFIGURATIONS[selected_config_name]
+providers = config.create_providers()
 
 # Podcast title input
 podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
@@ -72,7 +72,7 @@ uploaded_file = form_container.file_uploader(
 provider_options = {}
 with form_container.expander("Advanced options", expanded=False):
     # Get configurable options from each provider
-    for provider_name, provider_class in profile.get_provider_classes().items():
+    for provider_name, provider_class in config.get_provider_classes().items():
         provider_options[provider_name] = provider_class.render_options_ui(st)
 
 # Submit button
@@ -85,11 +85,11 @@ if uploaded_file and generate_podcast:
     form.empty()
 
     # Create provider instances with the UI-configured options
-    providers = profile.create_providers(**provider_options)
+    providers = config.create_providers(**provider_options)
 
     status_container = st.empty()
     with status_container.status(
-        f"Processing document with {profile.document_provider.__name__}...",
+        f"Processing document with {config.document_provider.__name__}...",
         expanded=False,
     ) as status:
         LOGGER.info(
@@ -112,7 +112,7 @@ if uploaded_file and generate_podcast:
             st.stop()
 
         status.update(
-            label=f"Analyzing document and generating podcast script with {profile.llm_provider.__name__}...",
+            label=f"Analyzing document and generating podcast script with {config.llm_provider.__name__}...",
             state="running",
             expanded=False,
         )
@@ -128,7 +128,7 @@ if uploaded_file and generate_podcast:
         podcast_script = podcast_response.podcast["script"]
 
         status.update(
-            label=f"Generating podcast using {profile.speech_provider.__name__}...",
+            label=f"Generating podcast using {config.speech_provider.__name__}...",
             state="running",
             expanded=False,
         )

@@ -1,4 +1,4 @@
-"""Profile configuration system for the podcast generator."""
+"""Configuration system for the podcast generator."""
 
 from dataclasses import dataclass, field
 
@@ -14,8 +14,8 @@ from providers.speech.base import SpeechProvider
 
 
 @dataclass
-class Profile:
-    """Profile configuration for the podcast generator."""
+class Configuration:
+    """Configuration for the podcast generator."""
 
     name: str
     document_provider: type[DocumentProvider]
@@ -26,7 +26,7 @@ class Profile:
     speech_provider_config: dict = field(default_factory=dict)
 
     def get_provider_classes(self) -> dict[str, type]:
-        """Get all provider classes in this profile."""
+        """Get all provider classes in this configuration."""
         return {
             "document": self.document_provider,
             "llm": self.llm_provider,
@@ -36,7 +36,7 @@ class Profile:
     def create_providers(
         self, **kwargs
     ) -> dict[str, DocumentProvider | LLMProvider | SpeechProvider]:
-        """Create provider instances from the profile configuration.
+        """Create provider instances from the configuration.
 
         Args:
             **kwargs: Provider options from UI, organized by provider name
@@ -62,15 +62,15 @@ class Profile:
         return providers
 
 
-# Dictionary of available profiles
-PROFILES: dict[str, Profile] = {
-    "Azure": Profile(
+# Dictionary of available configurations
+CONFIGURATIONS: dict[str, Configuration] = {
+    "Azure": Configuration(
         name="azure",
         document_provider=AzureDocumentIntelligenceProvider,
         llm_provider=AzureOpenAIProvider,
         speech_provider=AzureSpeechProvider,
     ),
-    "Azure (Multi-talker voice - preview)": Profile(
+    "Azure (Multi-talker voice - preview)": Configuration(
         name="azure-multitalker",
         document_provider=AzureDocumentIntelligenceProvider,
         llm_provider=AzureOpenAIProvider,

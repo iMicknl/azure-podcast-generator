@@ -56,7 +56,7 @@ class AzureSpeechProvider(SpeechProvider):
     @classmethod
     def render_options_ui(cls, st: streamlit) -> dict[str, Any]:
         """Render Azure Speech specific options using Streamlit widgets."""
-        st.subheader("Speech Options")
+        st.markdown("##### Speech")
 
         options = {}
         col1, col2 = st.columns(2)
