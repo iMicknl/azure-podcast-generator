@@ -9,12 +9,13 @@ from utils.identity import get_speech_token
 
 
 class AzureSpeechMultitalker(SpeechProvider):
-    """Basic speech provider for text-to-speech conversion.
+    """AzureSpeechMultitalker provider for text-to-speech conversion with multitalker support.
 
-    This is a template implementation that shows how to implement a custom
-    speech provider. It uses a basic SSML format and could be extended to
-    work with other TTS services or local TTS engines.
+    Multi-talker voices enable natural, dynamic conversations with multiple distinct speakers.
+    This innovation enhances the realism of synthesized dialogues by preserving contextual flow, emotional consistency, and natural speech patterns.
     """
+
+    cost: float = 0.0
 
     def __init__(self, **kwargs):
         """Initialize the Azure Speech provider."""
@@ -22,16 +23,6 @@ class AzureSpeechMultitalker(SpeechProvider):
         self.speech_region = os.environ.get("AZURE_SPEECH_REGION")
         self.speech_resource_id = os.environ.get("AZURE_SPEECH_RESOURCE_ID")
         self.output_format = speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm
-
-    # @classmethod
-    # def render_options_ui(cls, st) -> dict[str, Any]:
-    #     """Render Azure Speech specific options using Streamlit widgets."""
-    #     st.subheader("Speech Options")
-
-    #     options = {}
-    #     col1, col2 = st.columns(2)
-
-    #     return options
 
     def text_to_speech(self, ssml: str) -> SpeechResponse:
         """Convert SSML to audio using Azure Speech Service.
@@ -63,19 +54,10 @@ class AzureSpeechMultitalker(SpeechProvider):
         )
 
         # Synthesizes the received text to speech
-        result = speech_synthesizer.speak_ssml_async(ssml).get()
+        result = speech_synthesizer.speak_ssml(ssml)
 
         if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-            # Calculate characters in SSML for cost calculation
-            # Strip XML tags for character count
-            text_content = "".join(
-                [line for line in ssml.splitlines() if not line.strip().startswith("<")]
-            )
-            num_chars = len(text_content)
-            # Calculate cost: $30 per 1M characters for HD voices
-            cost = 30 * (num_chars / 1_000_000)
-
-            return SpeechResponse(audio=result.audio_data, cost=cost)
+            return SpeechResponse(audio=result.audio_data, cost=self.cost)
 
         elif result.reason == speechsdk.ResultReason.Canceled:
             cancellation_details = result.cancellation_details
@@ -102,6 +84,7 @@ class AzureSpeechMultitalker(SpeechProvider):
         """
         podcast_script = podcast["script"]
         language = podcast.get("config", {}).get("language", "en-US")
+        character_count = 0
 
         # Start with the SSML header and multitalker-specific namespace
         ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" '
@@ -126,7 +109,11 @@ class AzureSpeechMultitalker(SpeechProvider):
             # Convert speaker name to lowercase for the turn attribute
             speaker = "andrew" if line["speaker"] == "speaker_1" else "ava"
             ssml += f'<mstts:turn speaker="{speaker}">{message}</mstts:turn>'
+            character_count += len(message)
 
         # Close all tags
         ssml += "</mstts:dialog></voice></speak>"
+
+        self.cost = 30 * (character_count / 1_000_000)
+
         return ssml

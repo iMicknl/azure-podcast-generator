@@ -43,6 +43,8 @@ AZURE_HD_VOICES = {
 class AzureSpeechProvider(SpeechProvider):
     """Azure Speech provider for text-to-speech conversion."""
 
+    cost: float = 0.0
+
     def __init__(self, **kwargs):
         """Initialize the Azure Speech provider."""
         self.speech_key = os.environ.get("AZURE_SPEECH_KEY")
@@ -109,19 +111,10 @@ class AzureSpeechProvider(SpeechProvider):
         )
 
         # Synthesizes the received text to speech
-        result = speech_synthesizer.speak_ssml_async(ssml).get()
+        result = speech_synthesizer.speak_ssml(ssml)
 
         if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-            # Calculate characters in SSML for cost calculation
-            # Strip XML tags for character count
-            text_content = "".join(
-                [line for line in ssml.splitlines() if not line.strip().startswith("<")]
-            )
-            num_chars = len(text_content)
-            # Calculate cost: $30 per 1M characters for HD voices
-            cost = 30 * (num_chars / 1_000_000)
-
-            return SpeechResponse(audio=result.audio_data, cost=cost)
+            return SpeechResponse(audio=result.audio_data, cost=self.cost)
 
         elif result.reason == speechsdk.ResultReason.Canceled:
             cancellation_details = result.cancellation_details
@@ -149,6 +142,7 @@ class AzureSpeechProvider(SpeechProvider):
         podcast_script = podcast["script"]
         language = podcast.get("config", {}).get("language", "en-US")
         ssml = f"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang='{language}'>"
+        character_count = 0
 
         for line in podcast_script:
             # Escape SSML special characters
@@ -164,7 +158,10 @@ class AzureSpeechProvider(SpeechProvider):
             # Map speakers to the configured voices
             voice = self.voice_1 if line["speaker"] == "speaker_1" else self.voice_2
             ssml += f"<voice name='{self.voices[voice]}'>{message}</voice>"
+            character_count += len(message)
 
         ssml += "</speak>"
+
+        self.cost = 30 * (character_count / 1_000_000)
 
         return ssml
