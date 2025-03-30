@@ -62,24 +62,18 @@ class Profile:
         return providers
 
 
-# Default Azure profile using all Azure services
-AZURE_PROFILE = Profile(
-    name="Azure",
-    document_provider=AzureDocumentIntelligenceProvider,
-    llm_provider=AzureOpenAIProvider,
-    speech_provider=AzureSpeechProvider,
-)
-
-# Example profile using Azure services with basic speech
-AZURE_MULTITALKER = Profile(
-    name="azure-multitalker",
-    document_provider=AzureDocumentIntelligenceProvider,
-    llm_provider=AzureOpenAIProvider,
-    speech_provider=AzureSpeechMultitalker,
-)
-
 # Dictionary of available profiles
 PROFILES: dict[str, Profile] = {
-    "Azure": AZURE_PROFILE,
-    "Azure (experimental)": AZURE_MULTITALKER,
+    "Azure": Profile(
+        name="azure",
+        document_provider=AzureDocumentIntelligenceProvider,
+        llm_provider=AzureOpenAIProvider,
+        speech_provider=AzureSpeechProvider,
+    ),
+    "Azure (Multi-talker voice - preview)": Profile(
+        name="azure-multitalker",
+        document_provider=AzureDocumentIntelligenceProvider,
+        llm_provider=AzureOpenAIProvider,
+        speech_provider=AzureSpeechMultitalker,
+    ),
 }
