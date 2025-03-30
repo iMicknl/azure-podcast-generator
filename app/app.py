@@ -39,7 +39,7 @@ st.title("🗣️ Podcast Generator")
 
 
 st.write(
-    "Generate an engaging ~2 minute podcast based on your documents (e.g. scientific papers from arXiv) using Azure OpenAI and Azure Speech."
+    "Generate an engaging ~2 minute podcast based on your documents (e.g. scientific papers from arXiv) using Azure OpenAI and Azure AI Speech."
 )
 
 st.info(

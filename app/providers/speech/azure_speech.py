@@ -1,4 +1,4 @@
-"""Azure Speech provider implementation."""
+"""Azure AI Speech provider implementation."""
 
 import os
 from typing import Any
@@ -41,15 +41,15 @@ AZURE_HD_VOICES = {
 
 
 class AzureSpeechProvider(SpeechProvider):
-    """Azure Speech provider for text-to-speech conversion."""
+    """Azure AI Speech provider for text-to-speech conversion."""
 
-    name = "Azure Speech (HD Voice)"
+    name = "Azure AI Speech"
     description = "Convert text to lifelike speech using Azure's latest HD voices, offering high-quality audio synthesis."
 
     cost: float = 0.0
 
     def __init__(self, **kwargs):
-        """Initialize the Azure Speech provider."""
+        """Initialize the Azure AI Speech provider."""
         self.speech_key = os.environ.get("AZURE_SPEECH_KEY")
         self.speech_region = os.environ.get("AZURE_SPEECH_REGION")
         self.speech_resource_id = os.environ.get("AZURE_SPEECH_RESOURCE_ID")
@@ -60,7 +60,7 @@ class AzureSpeechProvider(SpeechProvider):
 
     @classmethod
     def render_options_ui(cls, st: streamlit) -> dict[str, Any]:
-        """Render Azure Speech specific options using Streamlit widgets."""
+        """Render Azure AI Speech specific options using Streamlit widgets."""
         st.markdown("##### Speech")
 
         options = {}
@@ -85,7 +85,7 @@ class AzureSpeechProvider(SpeechProvider):
         return options
 
     def text_to_speech(self, ssml: str) -> SpeechResponse:
-        """Convert SSML to audio using Azure Speech Service.
+        """Convert SSML to audio using Azure AI Speech Service.
 
         Args:
             ssml: The SSML text to convert to speech
@@ -108,7 +108,7 @@ class AzureSpeechProvider(SpeechProvider):
 
         speech_config.set_speech_synthesis_output_format(self.output_format)
 
-        # Creates a speech synthesizer using the Azure Speech Service
+        # Creates a speech synthesizer using the Azure AI Speech Service
         speech_synthesizer = speechsdk.SpeechSynthesizer(
             speech_config=speech_config, audio_config=audio_config
         )
@@ -134,7 +134,7 @@ class AzureSpeechProvider(SpeechProvider):
         raise Exception(f"Unknown exit reason: {result.reason}")
 
     def podcast_script_to_ssml(self, podcast: dict) -> str:
-        """Convert podcast script to SSML for Azure Speech Service.
+        """Convert podcast script to SSML for Azure AI Speech Service.
 
         Args:
             podcast: The podcast script data

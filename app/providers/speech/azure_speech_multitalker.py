@@ -11,20 +11,20 @@ from utils.identity import get_speech_token
 class AzureSpeechMultitalker(SpeechProvider):
     """AzureSpeechMultitalker provider for text-to-speech conversion with multitalker support."""
 
-    name = "Azure Speech (MultiTalker Voice)"
+    name = "Azure AI Speech (MultiTalker Voice)"
     description = "Use Azure's innovative MultiTalker voices for natural, dynamic conversations with emotional consistency."
 
     cost: float = 0.0
 
     def __init__(self, **kwargs):
-        """Initialize the Azure Speech provider."""
+        """Initialize the Azure AI Speech provider."""
         self.speech_key = os.environ.get("AZURE_SPEECH_KEY")
         self.speech_region = os.environ.get("AZURE_SPEECH_REGION")
         self.speech_resource_id = os.environ.get("AZURE_SPEECH_RESOURCE_ID")
         self.output_format = speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm
 
     def text_to_speech(self, ssml: str) -> SpeechResponse:
-        """Convert SSML to audio using Azure Speech Service.
+        """Convert SSML to audio using Azure AI Speech Service.
 
         Args:
             ssml: The SSML text to convert to speech
@@ -47,7 +47,7 @@ class AzureSpeechMultitalker(SpeechProvider):
 
         speech_config.set_speech_synthesis_output_format(self.output_format)
 
-        # Creates a speech synthesizer using the Azure Speech Service
+        # Creates a speech synthesizer using the Azure AI Speech Service
         speech_synthesizer = speechsdk.SpeechSynthesizer(
             speech_config=speech_config, audio_config=audio_config
         )
