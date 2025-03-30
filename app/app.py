@@ -112,9 +112,8 @@ if uploaded_file and generate_podcast:
         ]:
             document_response = providers["document"].document_to_markdown(bytes_data)
         else:
-            document_response = providers["document"].DocumentResponse(
-                markdown=bytes_data.decode("utf-8"), pages=0
-            )
+            st.error(f"Unsupported file type: {uploaded_file.type}")
+            st.stop()
 
         status.update(
             label=f"Analyzing document and generating podcast script with {profile.llm_provider.__name__}...",
