@@ -12,7 +12,7 @@ class AzureSpeechMultitalker(SpeechProvider):
     """AzureSpeechMultitalker provider for text-to-speech conversion with multitalker support."""
 
     name = "Azure Speech (MultiTalker Voice)"
-    description = "Use Azure's innovative MultiTalker voices for natural, dynamic conversations with emotional consistency"
+    description = "Use Azure's innovative MultiTalker voices for natural, dynamic conversations with emotional consistency."
 
     cost: float = 0.0
 
