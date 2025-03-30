@@ -2,15 +2,36 @@
 
 from abc import abstractmethod
 from dataclasses import dataclass
+from typing import TypedDict
 
 from providers.base import Provider
+
+
+class PodcastConfig(TypedDict):
+    """Type definition for podcast configuration."""
+
+    language: str
+
+
+class PodcastScript(TypedDict):
+    """Type definition for a single script entry."""
+
+    speaker: str
+    message: str
+
+
+class PodcastContent(TypedDict):
+    """Type definition for the full podcast content."""
+
+    config: PodcastConfig
+    script: list[PodcastScript]
 
 
 @dataclass
 class PodcastScriptResponse:
     """Podcast script response with generated content and usage metrics."""
 
-    podcast: dict
+    podcast: PodcastContent
     cost: float = 0.0  # Cost in USD for the LLM processing
 
 

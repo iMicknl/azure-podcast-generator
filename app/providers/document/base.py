@@ -1,4 +1,4 @@
-"""Base document provider interface."""
+"""Document provider interface."""
 
 from abc import abstractmethod
 from dataclasses import dataclass
