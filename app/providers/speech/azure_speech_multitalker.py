@@ -1,6 +1,11 @@
 """Basic speech provider implementation with simple SSML support."""
 
-from providers.speech.base import SpeechProvider
+import os
+
+import azure.cognitiveservices.speech as speechsdk
+from const import LOGGER
+from providers.speech.base import SpeechProvider, SpeechResponse
+from utils.identity import get_speech_token
 
 
 class AzureSpeechMultitalker(SpeechProvider):
@@ -12,26 +17,79 @@ class AzureSpeechMultitalker(SpeechProvider):
     """
 
     def __init__(self, **kwargs):
-        """Initialize the Basic Speech provider."""
-        self.voices = kwargs.get("voices", {"Andrew": "andrew", "Ava": "ava"})
+        """Initialize the Azure Speech provider."""
+        self.speech_key = os.environ.get("AZURE_SPEECH_KEY")
+        self.speech_region = os.environ.get("AZURE_SPEECH_REGION")
+        self.speech_resource_id = os.environ.get("AZURE_SPEECH_RESOURCE_ID")
+        self.output_format = speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm
 
-    def text_to_speech(self, ssml: str) -> bytes:
-        """Convert SSML to audio.
+    # @classmethod
+    # def render_options_ui(cls, st) -> dict[str, Any]:
+    #     """Render Azure Speech specific options using Streamlit widgets."""
+    #     st.subheader("Speech Options")
 
-        This is a template implementation. You would need to implement
-        the actual TTS logic here using your preferred TTS engine.
+    #     options = {}
+    #     col1, col2 = st.columns(2)
+
+    #     return options
+
+    def text_to_speech(self, ssml: str) -> SpeechResponse:
+        """Convert SSML to audio using Azure Speech Service.
 
         Args:
             ssml: The SSML text to convert to speech
 
         Returns:
-            bytes of audio data
+            SpeechResponse containing audio data and cost
         """
-        # This is where you would implement the actual TTS conversion
-        # For example, using a local TTS engine or another cloud service
-        raise NotImplementedError(
-            "This is a template implementation. You need to implement the actual TTS logic."
+        if self.speech_key:
+            speech_config = speechsdk.SpeechConfig(
+                subscription=self.speech_key,
+                region=self.speech_region,
+            )
+        else:
+            speech_config = speechsdk.SpeechConfig(
+                auth_token=get_speech_token(self.speech_resource_id),
+                region=self.speech_region,
+            )
+
+        audio_config = None  # enable in-memory audio stream
+
+        speech_config.set_speech_synthesis_output_format(self.output_format)
+
+        # Creates a speech synthesizer using the Azure Speech Service
+        speech_synthesizer = speechsdk.SpeechSynthesizer(
+            speech_config=speech_config, audio_config=audio_config
         )
+
+        # Synthesizes the received text to speech
+        result = speech_synthesizer.speak_ssml_async(ssml).get()
+
+        if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+            # Calculate characters in SSML for cost calculation
+            # Strip XML tags for character count
+            text_content = "".join(
+                [line for line in ssml.splitlines() if not line.strip().startswith("<")]
+            )
+            num_chars = len(text_content)
+            # Calculate cost: $30 per 1M characters for HD voices
+            cost = 30 * (num_chars / 1_000_000)
+
+            return SpeechResponse(audio=result.audio_data, cost=cost)
+
+        elif result.reason == speechsdk.ResultReason.Canceled:
+            cancellation_details = result.cancellation_details
+            LOGGER.warning(f"Speech synthesis canceled: {cancellation_details.reason}")
+
+            if (
+                cancellation_details.reason == speechsdk.CancellationReason.Error
+                and cancellation_details.error_details
+            ):
+                LOGGER.error(f"Error details: {cancellation_details.error_details}")
+
+            raise Exception(f"Error details: {cancellation_details.error_details}")
+
+        raise Exception(f"Unknown exit reason: {result.reason}")
 
     def podcast_script_to_ssml(self, podcast: dict) -> str:
         """Convert podcast script to multitalker SSML.
@@ -66,7 +124,7 @@ class AzureSpeechMultitalker(SpeechProvider):
             )
 
             # Convert speaker name to lowercase for the turn attribute
-            speaker = line["name"].lower()
+            speaker = "andrew" if line["speaker"] == "speaker_1" else "ava"
             ssml += f'<mstts:turn speaker="{speaker}">{message}</mstts:turn>'
 
         # Close all tags
