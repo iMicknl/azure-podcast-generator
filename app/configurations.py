@@ -17,21 +17,12 @@ from providers.speech.base import SpeechProvider
 class Configuration:
     """Configuration for the podcast generator."""
 
-    name: str
     document_provider: type[DocumentProvider]
     llm_provider: type[LLMProvider]
     speech_provider: type[SpeechProvider]
     document_provider_config: dict = field(default_factory=dict)
     llm_provider_config: dict = field(default_factory=dict)
     speech_provider_config: dict = field(default_factory=dict)
-
-    def get_provider_classes(self) -> dict[str, type]:
-        """Get all provider classes in this configuration."""
-        return {
-            "document": self.document_provider,
-            "llm": self.llm_provider,
-            "speech": self.speech_provider,
-        }
 
     def create_providers(
         self, **kwargs
@@ -62,18 +53,16 @@ class Configuration:
         return providers
 
 
-# Dictionary of available configurations
-CONFIGURATIONS: dict[str, Configuration] = {
-    "Azure": Configuration(
-        name="azure",
-        document_provider=AzureDocumentIntelligenceProvider,
-        llm_provider=AzureOpenAIProvider,
-        speech_provider=AzureSpeechProvider,
-    ),
-    "Azure (Multi-talker voice - preview)": Configuration(
-        name="azure-multitalker",
-        document_provider=AzureDocumentIntelligenceProvider,
-        llm_provider=AzureOpenAIProvider,
-        speech_provider=AzureSpeechMultitalker,
-    ),
+# Available providers by type
+DOCUMENT_PROVIDERS = {
+    AzureDocumentIntelligenceProvider.name: AzureDocumentIntelligenceProvider,
+}
+
+LLM_PROVIDERS = {
+    AzureOpenAIProvider.name: AzureOpenAIProvider,
+}
+
+SPEECH_PROVIDERS = {
+    AzureSpeechProvider.name: AzureSpeechProvider,
+    AzureSpeechMultitalker.name: AzureSpeechMultitalker,
 }

@@ -1,11 +1,14 @@
 """Base provider interface for the podcast generator."""
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, ClassVar
 
 
 class Provider(ABC):
     """Abstract base class for all providers."""
+
+    name: ClassVar[str] = ""  # Human readable name for the provider
+    description: ClassVar[str] = ""  # Description of what the provider does
 
     @abstractmethod
     def __init__(self, **kwargs):

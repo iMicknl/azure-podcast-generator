@@ -61,6 +61,9 @@ def _cached_document_to_markdown(
 class AzureDocumentIntelligenceProvider(DocumentProvider):
     """Azure Document Intelligence provider for document processing."""
 
+    name = "Azure Document Intelligence"
+    description = "Extract text and structure from PDFs, images and Office documents using Azure Document Intelligence's Layout API"
+
     def __init__(self, **kwargs):
         """Initialize the Azure Document Intelligence provider."""
         self.endpoint = kwargs.get(

@@ -95,6 +95,9 @@ JSON_SCHEMA = {
 class AzureOpenAIProvider(LLMProvider):
     """Azure OpenAI provider for podcast script generation."""
 
+    name = "Azure OpenAI"
+    description = "Generate engaging and natural podcast scripts using Azure OpenAI's GPT-4 Turbo with structure output"
+
     def __init__(self, **kwargs):
         """Initialize the Azure OpenAI provider."""
         self.api_key = kwargs.get("api_key", os.environ.get("AZURE_OPENAI_KEY"))

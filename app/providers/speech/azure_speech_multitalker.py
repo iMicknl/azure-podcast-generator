@@ -9,11 +9,10 @@ from utils.identity import get_speech_token
 
 
 class AzureSpeechMultitalker(SpeechProvider):
-    """AzureSpeechMultitalker provider for text-to-speech conversion with multitalker support.
+    """AzureSpeechMultitalker provider for text-to-speech conversion with multitalker support."""
 
-    Multi-talker voices enable natural, dynamic conversations with multiple distinct speakers.
-    This innovation enhances the realism of synthesized dialogues by preserving contextual flow, emotional consistency, and natural speech patterns.
-    """
+    name = "Azure Speech (MultiTalker Voice)"
+    description = "Use Azure's innovative MultiTalker voices for natural, dynamic conversations with emotional consistency"
 
     cost: float = 0.0
 
