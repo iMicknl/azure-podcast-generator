@@ -44,7 +44,7 @@ class AzureSpeechProvider(SpeechProvider):
     """Azure Speech provider for text-to-speech conversion."""
 
     name = "Azure Speech (HD Voice)"
-    description = "Convert text to lifelike speech using Azure's latest HD voices, offering high-quality audio synthesis"
+    description = "Convert text to lifelike speech using Azure's latest HD voices, offering high-quality audio synthesis."
 
     cost: float = 0.0
 

@@ -96,7 +96,7 @@ class AzureOpenAIProvider(LLMProvider):
     """Azure OpenAI provider for podcast script generation."""
 
     name = "Azure OpenAI"
-    description = "Generate engaging and natural podcast scripts using Azure OpenAI's GPT-4 Turbo with structure output"
+    description = "Generate engaging and natural podcast scripts using Azure OpenAI (GPT-4o) with structured output."
 
     def __init__(self, **kwargs):
         """Initialize the Azure OpenAI provider."""
