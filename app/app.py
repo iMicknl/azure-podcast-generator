@@ -5,7 +5,12 @@ import os
 import xml.dom.minidom
 
 import streamlit as st
-from configurations import CONFIGURATIONS
+from configurations import (
+    DOCUMENT_PROVIDERS,
+    LLM_PROVIDERS,
+    SPEECH_PROVIDERS,
+    Configuration,
+)
 from const import LOGGER
 from dotenv import find_dotenv, load_dotenv
 from utils.identity import check_claim_for_tenant
@@ -46,17 +51,48 @@ final_audio = None
 form = st.empty()
 form_container = form.container()
 
-# Configuration selection
-selected_config_name = form_container.selectbox(
-    "Configuration",
-    options=list(CONFIGURATIONS.keys()),
-    index=0,
-    help="Select a configuration to use different combinations of document processing, LLM, and speech providers",
-)
+# Provider selection in 3 columns
+col1, col2, col3 = form_container.columns(3)
 
-# Get the selected configuration and create provider instances
-config = CONFIGURATIONS[selected_config_name]
-providers = config.create_providers()
+with col1:
+    selected_doc_provider = st.selectbox(
+        "Document Provider",
+        options=list(DOCUMENT_PROVIDERS.keys()),
+        index=0,
+        format_func=lambda x: x,
+        help="Select a document processing provider",
+    )
+    doc_provider = DOCUMENT_PROVIDERS[selected_doc_provider]
+    st.caption(doc_provider.description)
+
+with col2:
+    selected_llm_provider = st.selectbox(
+        "LLM Provider",
+        options=list(LLM_PROVIDERS.keys()),
+        index=0,
+        format_func=lambda x: x,
+        help="Select a language model provider",
+    )
+    llm_provider = LLM_PROVIDERS[selected_llm_provider]
+    st.caption(llm_provider.description)
+
+with col3:
+    selected_speech_provider = st.selectbox(
+        "Speech Provider",
+        options=list(SPEECH_PROVIDERS.keys()),
+        index=0,
+        format_func=lambda x: x,
+        help="Select a speech synthesis provider",
+    )
+    speech_provider = SPEECH_PROVIDERS[selected_speech_provider]
+    st.caption(speech_provider.description)
+
+# Create configuration from selected providers
+config = Configuration(
+    document_provider=doc_provider,
+    llm_provider=llm_provider,
+    speech_provider=speech_provider,
+)
 
 # Podcast title input
 podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
@@ -71,9 +107,9 @@ uploaded_file = form_container.file_uploader(
 # Advanced options expander
 provider_options = {}
 with form_container.expander("Advanced options", expanded=False):
-    # Get configurable options from each provider
-    for provider_name, provider_class in config.get_provider_classes().items():
-        provider_options[provider_name] = provider_class.render_options_ui(st)
+    provider_options["document"] = doc_provider.render_options_ui(st)
+    provider_options["llm"] = llm_provider.render_options_ui(st)
+    provider_options["speech"] = speech_provider.render_options_ui(st)
 
 # Submit button
 generate_podcast = form_container.button(
@@ -89,7 +125,7 @@ if uploaded_file and generate_podcast:
 
     status_container = st.empty()
     with status_container.status(
-        f"Processing document with {config.document_provider.__name__}...",
+        f"Processing document with {doc_provider.name}...",
         expanded=False,
     ) as status:
         LOGGER.info(
@@ -112,7 +148,7 @@ if uploaded_file and generate_podcast:
             st.stop()
 
         status.update(
-            label=f"Analyzing document and generating podcast script with {config.llm_provider.__name__}...",
+            label=f"Analyzing document and generating podcast script with {llm_provider.name}...",
             state="running",
             expanded=False,
         )
@@ -128,7 +164,7 @@ if uploaded_file and generate_podcast:
         podcast_script = podcast_response.podcast["script"]
 
         status.update(
-            label=f"Generating podcast using {config.speech_provider.__name__}...",
+            label=f"Generating podcast using {speech_provider.name}...",
             state="running",
             expanded=False,
         )
