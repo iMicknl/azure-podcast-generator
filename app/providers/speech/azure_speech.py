@@ -5,7 +5,7 @@ from typing import Any
 
 import azure.cognitiveservices.speech as speechsdk
 from const import AZURE_HD_VOICES, LOGGER
-from providers.speech.base import SpeechProvider
+from providers.speech.base import SpeechProvider, SpeechResponse
 from utils.identity import get_speech_token
 
 
@@ -48,30 +48,25 @@ class AzureSpeechProvider(SpeechProvider):
 
         return options
 
-    def text_to_speech(self, ssml: str) -> bytes:
+    def text_to_speech(self, ssml: str) -> SpeechResponse:
         """Convert SSML to audio using Azure Speech Service.
 
         Args:
             ssml: The SSML text to convert to speech
 
         Returns:
-            bytes of audio data
+            SpeechResponse containing audio data and cost
         """
         if self.speech_key:
             speech_config = speechsdk.SpeechConfig(
                 subscription=self.speech_key,
                 region=self.speech_region,
             )
-
-            print("Using speech key")
         else:
             speech_config = speechsdk.SpeechConfig(
                 auth_token=get_speech_token(self.speech_resource_id),
                 region=self.speech_region,
             )
-
-            print("Using speech token")
-            print(get_speech_token(self.speech_resource_id))
 
         audio_config = None  # enable in-memory audio stream
 
@@ -86,7 +81,16 @@ class AzureSpeechProvider(SpeechProvider):
         result = speech_synthesizer.speak_ssml_async(ssml).get()
 
         if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-            return result.audio_data
+            # Calculate characters in SSML for cost calculation
+            # Strip XML tags for character count
+            text_content = "".join(
+                [line for line in ssml.splitlines() if not line.strip().startswith("<")]
+            )
+            num_chars = len(text_content)
+            # Calculate cost: $30 per 1M characters for HD voices
+            cost = 30 * (num_chars / 1_000_000)
+
+            return SpeechResponse(audio=result.audio_data, cost=cost)
 
         elif result.reason == speechsdk.ResultReason.Canceled:
             cancellation_details = result.cancellation_details

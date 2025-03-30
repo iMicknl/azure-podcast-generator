@@ -52,7 +52,10 @@ def _cached_document_to_markdown(
     markdown = result.content
     pages = len(result.pages)
 
-    return DocumentResponse(markdown=markdown, pages=pages)
+    # Calculate cost: $10 per 1,000 pages for Layout API
+    cost = 10 * (pages / 1_000)
+
+    return DocumentResponse(markdown=markdown, pages=pages, cost=cost)
 
 
 class AzureDocumentIntelligenceProvider(DocumentProvider):
