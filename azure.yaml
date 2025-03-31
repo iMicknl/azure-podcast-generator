@@ -1,0 +1,3 @@
+name: azure-podcast-generator
+requiredVersions:
+  azd: ">= 1.10.0"
