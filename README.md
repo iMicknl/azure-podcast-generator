@@ -77,7 +77,7 @@ uv run streamlit run app/app.py
 
 ### Deploy on Azure
 
-This repository includes the code for the Azure Podcast Generator. You can use the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) to deploy the container to Azure Container Apps, or you can use [AZD](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/). 
+This repository includes the code for the Azure Podcast Generator. You can use the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) to deploy the container to Azure Container Apps, or you can use [AZD](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/).
 
 #### Azure Developer CLI
 
