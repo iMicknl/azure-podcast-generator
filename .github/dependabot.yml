@@ -5,7 +5,6 @@
 # https://containers.dev/guide/dependabot
 
 version: 2
-enable-beta-ecosystems: true
 
 updates:
  - package-ecosystem: "github-actions"
