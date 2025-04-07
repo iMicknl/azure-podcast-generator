@@ -1,35 +1,23 @@
-name: Package application
+name: Package and publish application (on release)
 
 on:
   release:
-    types: [created]
-  workflow_dispatch:
+    types: [published]
 
 permissions:
   contents: read
   packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  IMAGE: azure-podcast-generator
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set environment variables
-        id: set-variables
-        run: |
-          echo "REPOSITORY=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
-          echo "IMAGE=azure-podcast-generator" >> "$GITHUB_OUTPUT"
-          echo "VERSION=$(echo ${{ github.ref_name }})" >> "$GITHUB_OUTPUT"
-          echo "CREATED=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
-
-      - name: Env variable output
-        id: test-variables
-        run: |
-          echo ${{ steps.set-variables.outputs.REPOSITORY }}
-          echo ${{ steps.set-variables.outputs.IMAGE }}
-          echo ${{ steps.set-variables.outputs.VERSION }}
-          echo ${{ steps.set-variables.outputs.CREATED }}
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -39,19 +27,25 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: |
-            ${{ steps.set-variables.outputs.REPOSITORY }}/${{ steps.set-variables.outputs.IMAGE }}:latest
-            ${{ steps.set-variables.outputs.REPOSITORY }}/${{ steps.set-variables.outputs.IMAGE }}:${{ steps.set-variables.outputs.VERSION }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.created=${{ steps.set-variables.outputs.CREATED }}
-            org.opencontainers.image.revision=${{ steps.set-variables.outputs.VERSION }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
