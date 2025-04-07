@@ -86,8 +86,6 @@ A simple `azd up` should suffice to create the infrastructure needed. All you ne
 
 > Note: the azd command will also create a resource group to house all your infrastructure in.
 
-> Note: After deployment succeeds, all you have to do is change the container apps container to the container from this repository. It currently is not hosted anywhere, so you will have to build it yourself, and push it into ACA however you see fit.
-
 #### Azure CLI
 
 ```bash

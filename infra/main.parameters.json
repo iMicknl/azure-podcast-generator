@@ -9,7 +9,7 @@
             "value": "${AZURE_LOCATION}"
         },
         "containerImage": {
-            "value": "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+            "value": "ghcr.io/imicknl/azure-podcast-generator:latest"
         }
     }
 }
