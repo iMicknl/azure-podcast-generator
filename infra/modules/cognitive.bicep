@@ -6,6 +6,7 @@ param tags object
 var openAiName = 'ai-${environmentName}-${uniqueSuffix}'
 var documentIntelligenceName = 'di-${environmentName}-${uniqueSuffix}'
 var speechName = 'sp-${environmentName}-${uniqueSuffix}'
+var modelDeploymentName = 'gpt-4o'
 
 resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: openAiName
@@ -23,7 +24,7 @@ resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
 
 resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
   parent: openAi
-  name: 'gpt-4o'
+  name: modelDeploymentName
   sku: {
     name: 'Standard'
     capacity: 1
@@ -31,7 +32,7 @@ resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4o'
+      name: modelDeploymentName
       version: '2024-11-20'
     }
     raiPolicyName: 'Microsoft.Default'
