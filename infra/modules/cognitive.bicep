@@ -6,7 +6,7 @@ param tags object
 var openAiName = 'ai-${environmentName}-${uniqueSuffix}'
 var documentIntelligenceName = 'di-${environmentName}-${uniqueSuffix}'
 var speechName = 'sp-${environmentName}-${uniqueSuffix}'
-param modelDeploymentName string 
+param modelDeploymentName string
 
 resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: openAiName
