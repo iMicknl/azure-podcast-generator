@@ -6,6 +6,7 @@ from providers.document.azure_document_intelligence import (
     AzureDocumentIntelligenceProvider,
 )
 from providers.document.base import DocumentProvider
+from providers.document.markitdown import MarkItDownProvider
 from providers.llm.azure_openai import AzureOpenAIProvider
 from providers.llm.base import LLMProvider
 from providers.speech.azure_speech import AzureSpeechProvider
@@ -56,6 +57,7 @@ class Configuration:
 # Available providers by type
 DOCUMENT_PROVIDERS: dict[str, type[DocumentProvider]] = {
     AzureDocumentIntelligenceProvider.name: AzureDocumentIntelligenceProvider,
+    MarkItDownProvider.name: MarkItDownProvider,
 }
 
 LLM_PROVIDERS: dict[str, type[LLMProvider]] = {

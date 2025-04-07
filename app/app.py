@@ -97,11 +97,20 @@ config = Configuration(
 # Podcast title input
 podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
 
+# Create a temporary instance of the document provider to access its properties
+temp_provider = doc_provider()
+# Get supported file types from the selected document provider
+supported_file_types = getattr(
+    temp_provider,
+    "supported_file_types",
+    ["pdf", "doc", "docx", "ppt", "pptx", "txt", "md"],
+)
+
 # File upload
 uploaded_file = form_container.file_uploader(
     "Upload your document",
     accept_multiple_files=False,
-    type=["pdf", "doc", "docx", "ppt", "pptx", "txt", "md"],
+    type=supported_file_types,
 )
 
 # Advanced options expander
@@ -132,20 +141,8 @@ if uploaded_file and generate_podcast:
             f"Processing document: {uploaded_file.name}, type: {uploaded_file.type}"
         )
 
-        # Convert PDF/image/Word files to Markdown with Document Intelligence
-        if uploaded_file.type in [
-            "application/pdf",
-            "image/png",
-            "image/jpeg",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.ms-powerpoint",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        ]:
-            document_response = providers["document"].document_to_markdown(bytes_data)
-        else:
-            st.error(f"Unsupported file type: {uploaded_file.type}")
-            st.stop()
+        # Process document using the selected provider
+        document_response = providers["document"].document_to_markdown(bytes_data)
 
         status.update(
             label=f"Analyzing document and generating podcast script with {llm_provider.name}...",

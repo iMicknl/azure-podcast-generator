@@ -8,6 +8,7 @@ dependencies = [
     "azure-ai-documentintelligence>=1.0.0b4",
     "azure-cognitiveservices-speech>=1.41.1",
     "azure-identity>=1.19.0",
+    "markitdown[docx,outlook,pdf,pptx,xls,xlsx]>=0.1.1",
     "openai>=1.51.2",
     "python-dotenv>=1.0.1",
     "streamlit>=1.39.0",

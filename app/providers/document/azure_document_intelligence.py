@@ -73,6 +73,23 @@ class AzureDocumentIntelligenceProvider(DocumentProvider):
             "api_key", os.environ.get("DOCUMENTINTELLIGENCE_API_KEY")
         )
 
+    @property
+    def supported_file_types(self):
+        """Get the supported file types for this provider."""
+        return [
+            "pdf",
+            "doc",
+            "docx",
+            "ppt",
+            "pptx",
+            "jpg",
+            "jpeg",
+            "png",
+            "gif",
+            "tiff",
+            "bmp",
+        ]
+
     def document_to_markdown(self, file: bytes) -> DocumentResponse:
         """Convert document to markdown using Azure Document Intelligence.
 
