@@ -77,8 +77,16 @@ uv run streamlit run app/app.py
 
 ### Deploy on Azure
 
-This repository includes the code for the Azure Podcast Generator, but infrastructure-as-code is not currently provided. You can use the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) to deploy the container to Azure Container Apps.
+This repository includes the code for the Azure Podcast Generator. You can use the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/) to deploy the container to Azure Container Apps, or you can use [AZD](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/).
 
+#### Azure Developer CLI
+
+A simple `azd up` should suffice to create the infrastructure needed. All you need to provide is what subscription this is going to be deployed at. You'll deploy what's depicted in the visualization below.
+![bicep visualization](docs/bicep-visual.png)
+
+> Note: the azd command will also create a resource group to house all your infrastructure in.
+
+#### Azure CLI
 
 ```bash
 az containerapp up --resource-group your-rg-name \
@@ -92,7 +100,6 @@ It is advised to set the [sticky-sessions](https://learn.microsoft.com/en-us/azu
 ```bash
 az containerapp ingress sticky-sessions set --affinity sticky --name your-app-name --resource-group your-rg-name
 ```
-
 
 ## Inspired by
 - Google NotebookLM
