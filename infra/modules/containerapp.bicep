@@ -72,7 +72,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
             }
             {
               name: 'AZURE_OPENAI_MODEL_DEPLOYMENT'
-              value: 'gpt-4o'
+              value: modelDeploymentName
             }
             {
               name: 'DOCUMENTINTELLIGENCE_ENDPOINT'
