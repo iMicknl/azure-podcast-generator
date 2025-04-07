@@ -77,6 +77,6 @@ class MarkItDownProvider(DocumentProvider):
         # and no cost since it's open source
         return DocumentResponse(
             markdown=result.text_content,
-            pages=1,  # Default to 1 as MarkItDown doesn't explicitly return page count
-            cost=0.0,  # No cost for open source processing
+            pages=0,  # MarkItDown doesn't explicitly return page count
+            cost=0.0,
         )
