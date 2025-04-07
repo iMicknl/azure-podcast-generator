@@ -5,7 +5,7 @@ param tags object
 param containerImage string
 param openAiEndpoint string
 param documentIntelligenceEndpoint string
-param speechResouceId string
+param speechResourceId string
 
 var containerAppName = 'ca-${environmentName}-${uniqueSuffix}'
 var containerEnvName = 'cae-${environmentName}-${uniqueSuffix}'
@@ -80,7 +80,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
             }
             {
               name: 'AZURE_SPEECH_RESOURCE_ID'
-              value: speechResouceId
+              value: speechResourceId
             }
             {
               name: 'AZURE_SPEECH_REGION'

@@ -45,7 +45,7 @@ module containerapp 'modules/containerapp.bicep' = {
     containerImage: containerImage
     openAiEndpoint: cognitive.outputs.openAiEndpoint
     documentIntelligenceEndpoint: cognitive.outputs.documentIntelligenceEndpoint
-    speechResouceId: cognitive.outputs.speechId
+    speechResourceId: cognitive.outputs.speechId
   }
 }
 
