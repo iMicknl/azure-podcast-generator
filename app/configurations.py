@@ -54,15 +54,15 @@ class Configuration:
 
 
 # Available providers by type
-DOCUMENT_PROVIDERS = {
+DOCUMENT_PROVIDERS: dict[str, type[DocumentProvider]] = {
     AzureDocumentIntelligenceProvider.name: AzureDocumentIntelligenceProvider,
 }
 
-LLM_PROVIDERS = {
+LLM_PROVIDERS: dict[str, type[LLMProvider]] = {
     AzureOpenAIProvider.name: AzureOpenAIProvider,
 }
 
-SPEECH_PROVIDERS = {
+SPEECH_PROVIDERS: dict[str, type[SpeechProvider]] = {
     AzureSpeechProvider.name: AzureSpeechProvider,
     AzureSpeechMultitalker.name: AzureSpeechMultitalker,
 }
