@@ -21,7 +21,7 @@ jobs:
           echo "IMAGE=azure-podcast-generator" >> "$GITHUB_OUTPUT"
           echo "VERSION=$(echo ${{ github.ref_name }})" >> "$GITHUB_OUTPUT"
           echo "CREATED=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
-      
+
       - name: Env variable output
         id: test-variables
         run: |
