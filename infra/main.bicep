@@ -15,6 +15,7 @@ var tags = {
   application: 'azure-podcast-generator'
 }
 var rgName = 'rg-${environmentName}-${uniqueSuffix}'
+var modelName = 'gpt-4o'
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
   name: rgName
@@ -30,6 +31,7 @@ module cognitive 'modules/cognitive.bicep' = {
     environmentName: environmentName
     uniqueSuffix: uniqueSuffix
     tags: tags
+    modelDeploymentName: modelName
   }
 }
 
@@ -46,6 +48,7 @@ module containerapp 'modules/containerapp.bicep' = {
     openAiEndpoint: cognitive.outputs.openAiEndpoint
     documentIntelligenceEndpoint: cognitive.outputs.documentIntelligenceEndpoint
     speechResourceId: cognitive.outputs.speechId
+    modelDeploymentName: modelName
   }
 }
 

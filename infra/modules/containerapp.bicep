@@ -6,6 +6,7 @@ param containerImage string
 param openAiEndpoint string
 param documentIntelligenceEndpoint string
 param speechResourceId string
+param modelDeploymentName string
 
 var containerAppName = 'ca-${environmentName}-${uniqueSuffix}'
 var containerEnvName = 'cae-${environmentName}-${uniqueSuffix}'
