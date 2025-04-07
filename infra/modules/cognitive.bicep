@@ -26,8 +26,8 @@ resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-
   parent: openAi
   name: modelDeploymentName
   sku: {
-    name: 'Standard'
-    capacity: 1
+    name: 'DataZoneStandard'
+    capacity: 30
   }
   properties: {
     model: {
