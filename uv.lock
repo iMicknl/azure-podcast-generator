@@ -130,13 +130,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "azure-ai-documentintelligence", specifier = "==1.0.2" },
-    { name = "azure-cognitiveservices-speech", specifier = "==1.43.0" },
-    { name = "azure-identity", specifier = "==1.21.0" },
-    { name = "openai", specifier = "==1.70.0" },
-    { name = "python-dotenv", specifier = "==1.1.0" },
+    { name = "azure-ai-documentintelligence", specifier = ">=1.0.0b4" },
+    { name = "azure-cognitiveservices-speech", specifier = ">=1.41.1" },
+    { name = "azure-identity", specifier = ">=1.19.0" },
+    { name = "openai", specifier = ">=1.51.2" },
+    { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "streamlit", specifier = ">=1.39.0" },
-    { name = "tiktoken", specifier = "==0.9.0" },
+    { name = "tiktoken", specifier = ">=0.8.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -617,7 +617,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.70.0"
+version = "1.74.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -629,9 +629,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/87/f5/ae0f3cd226c2993b4ac1cc4b5f6ca099764689f403c14922c9356accec66/openai-1.70.0.tar.gz", hash = "sha256:e52a8d54c3efeb08cf58539b5b21a5abef25368b5432965e4de88cdf4e091b2b", size = 409640 }
+sdist = { url = "https://files.pythonhosted.org/packages/75/86/c605a6e84da0248f2cebfcd864b5a6076ecf78849245af5e11d2a5ec7977/openai-1.74.0.tar.gz", hash = "sha256:592c25b8747a7cad33a841958f5eb859a785caea9ee22b9e4f4a2ec062236526", size = 427571 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e2/39/c4b38317d2c702c4bc763957735aaeaf30dfc43b5b824121c49a4ba7ba0f/openai-1.70.0-py3-none-any.whl", hash = "sha256:f6438d053fd8b2e05fd6bef70871e832d9bbdf55e119d0ac5b92726f1ae6f614", size = 599070 },
+    { url = "https://files.pythonhosted.org/packages/a9/91/8c150f16a96367e14bd7d20e86e0bbbec3080e3eb593e63f21a7f013f8e4/openai-1.74.0-py3-none-any.whl", hash = "sha256:aff3e0f9fb209836382ec112778667027f4fd6ae38bdb2334bc9e173598b092a", size = 644790 },
 ]
 
 [[package]]
