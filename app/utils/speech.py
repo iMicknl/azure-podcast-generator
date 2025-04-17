@@ -10,7 +10,7 @@ from utils.identity import get_speech_token
 # TODO leverage streaming to speed up generation
 # https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-lower-speech-synthesis-latency?pivots=programming-language-csharp#streaming
 def text_to_speech(ssml) -> bytes:
-    """Use Azure Speech Service and convert SSML to audio bytes."""
+    """Use Azure AI Speech Service and convert SSML to audio bytes."""
 
     if os.getenv("AZURE_SPEECH_KEY"):
         speech_config = speechsdk.SpeechConfig(
@@ -29,7 +29,7 @@ def text_to_speech(ssml) -> bytes:
         speechsdk.SpeechSynthesisOutputFormat.Riff48Khz16BitMonoPcm
     )
 
-    # Creates a speech synthesizer using the Azure Speech Service.
+    # Creates a speech synthesizer using the Azure AI Speech Service.
     speech_synthesizer = speechsdk.SpeechSynthesizer(
         speech_config=speech_config, audio_config=audio_config
     )

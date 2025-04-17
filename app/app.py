@@ -2,19 +2,19 @@
 
 import logging
 import os
+import xml.dom.minidom
 
 import streamlit as st
-from const import AZURE_HD_VOICES, LOGGER
-from dotenv import find_dotenv, load_dotenv
-from utils.cost import (
-    calculate_azure_ai_speech_costs,
-    calculate_azure_document_intelligence_costs,
-    calculate_azure_openai_costs,
+from configurations import (
+    DOCUMENT_PROVIDERS,
+    LLM_PROVIDERS,
+    SPEECH_PROVIDERS,
+    Configuration,
 )
-from utils.document import DocumentResponse, document_to_markdown
+from const import LOGGER
+from dotenv import find_dotenv, load_dotenv
 from utils.identity import check_claim_for_tenant
-from utils.llm import document_to_podcast_script, get_encoding
-from utils.speech import podcast_script_to_ssml, text_to_speech
+from utils.llm import get_encoding
 
 # optional: only allow specific tenants to access the app (using Azure Entra ID)
 headers = st.context.headers
@@ -39,7 +39,7 @@ st.title("🗣️ Podcast Generator")
 
 
 st.write(
-    "Generate an engaging ~2 minute podcast based on your documents (e.g. scientific papers from arXiv) using Azure OpenAI and Azure Speech."
+    "Generate an engaging ~2 minute podcast based on your documents (e.g. scientific papers from arXiv) using Azure OpenAI and Azure AI Speech."
 )
 
 st.info(
@@ -50,6 +50,49 @@ st.info(
 final_audio = None
 form = st.empty()
 form_container = form.container()
+
+# Provider selection in 3 columns
+col1, col2, col3 = form_container.columns(3)
+
+with col1:
+    selected_doc_provider = st.selectbox(
+        "Document Processing Provider",
+        options=list(DOCUMENT_PROVIDERS.keys()),
+        index=0,
+        format_func=lambda x: x,
+        help="Select a document processing provider",
+    )
+    doc_provider = DOCUMENT_PROVIDERS[selected_doc_provider]
+    st.caption(doc_provider.description)
+
+with col2:
+    selected_llm_provider = st.selectbox(
+        "Script Generation Provider",
+        options=list(LLM_PROVIDERS.keys()),
+        index=0,
+        format_func=lambda x: x,
+        help="Select a language model provider",
+    )
+    llm_provider = LLM_PROVIDERS[selected_llm_provider]
+    st.caption(llm_provider.description)
+
+with col3:
+    selected_speech_provider = st.selectbox(
+        "Speech Provider",
+        options=list(SPEECH_PROVIDERS.keys()),
+        index=0,
+        format_func=lambda x: x,
+        help="Select a speech synthesis provider",
+    )
+    speech_provider = SPEECH_PROVIDERS[selected_speech_provider]
+    st.caption(speech_provider.description)
+
+# Create configuration from selected providers
+config = Configuration(
+    document_provider=doc_provider,
+    llm_provider=llm_provider,
+    speech_provider=speech_provider,
+)
 
 # Podcast title input
 podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
@@ -62,36 +105,12 @@ uploaded_file = form_container.file_uploader(
 )
 
 # Advanced options expander
+provider_options = {}
 with form_container.expander("Advanced options", expanded=False):
-    col1, col2 = st.columns(2)
+    provider_options["document"] = doc_provider.render_options_ui(st)
+    provider_options["llm"] = llm_provider.render_options_ui(st)
+    provider_options["speech"] = speech_provider.render_options_ui(st)
 
-    # Voice 1 select box
-    voice_1 = col1.selectbox(
-        "Voice 1",
-        options=list(AZURE_HD_VOICES.keys()),
-        index=list(AZURE_HD_VOICES.keys()).index("Andrew")
-        if "Andrew" in AZURE_HD_VOICES
-        else 0,
-    )
-
-    # Voice 2 select box
-    voice_2 = col2.selectbox(
-        "Voice 2",
-        options=list(AZURE_HD_VOICES.keys()),
-        index=list(AZURE_HD_VOICES.keys()).index("Ava")
-        if "Ava" in AZURE_HD_VOICES
-        else 1,
-    )
-
-    # Max tokens slider
-    max_tokens = st.slider(
-        "Max Tokens",
-        min_value=1000,
-        max_value=32000,
-        value=8000,
-        step=500,
-        help="Select the maximum number of tokens to be used for generating the podcast script. Adjust this according to your OpenAI quota.",
-    )
 # Submit button
 generate_podcast = form_container.button(
     "Generate Podcast", type="primary", disabled=not uploaded_file
@@ -101,9 +120,13 @@ if uploaded_file and generate_podcast:
     bytes_data = uploaded_file.read()
     form.empty()
 
+    # Create provider instances with the UI-configured options
+    providers = config.create_providers(**provider_options)
+
     status_container = st.empty()
     with status_container.status(
-        "Processing document with Azure Document Intelligence...", expanded=False
+        f"Processing document with {doc_provider.name}...",
+        expanded=False,
     ) as status:
         LOGGER.info(
             f"Processing document: {uploaded_file.name}, type: {uploaded_file.type}"
@@ -119,14 +142,13 @@ if uploaded_file and generate_podcast:
             "application/vnd.ms-powerpoint",
             "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         ]:
-            document_response = document_to_markdown(bytes_data)
+            document_response = providers["document"].document_to_markdown(bytes_data)
         else:
-            document_response = DocumentResponse(
-                markdown=bytes_data.decode("utf-8"), pages=0
-            )
+            st.error(f"Unsupported file type: {uploaded_file.type}")
+            st.stop()
 
         status.update(
-            label="Analyzing document and generating podcast script with Azure OpenAI...",
+            label=f"Analyzing document and generating podcast script with {llm_provider.name}...",
             state="running",
             expanded=False,
         )
@@ -135,45 +157,31 @@ if uploaded_file and generate_podcast:
         LOGGER.info(f"Generating podcast script. Document tokens: {num_tokens}")
 
         # Convert input document to podcast script
-        podcast_response = document_to_podcast_script(
-            document=document_response.markdown,
-            title=podcast_title,
-            voice_1=voice_1,
-            voice_2=voice_2,
-            max_tokens=max_tokens,
+        podcast_response = providers["llm"].document_to_podcast_script(
+            document=document_response.markdown, title=podcast_title
         )
 
         podcast_script = podcast_response.podcast["script"]
-        for item in podcast_script:
-            st.markdown(f"**{item['name']}**: {item['message']}")
 
         status.update(
-            label="Generating podcast using Azure AI Speech...",
+            label=f"Generating podcast using {speech_provider.name}...",
             state="running",
             expanded=False,
         )
 
         # Convert podcast script to audio
-        ssml = podcast_script_to_ssml(podcast_response.podcast)
-        audio = text_to_speech(ssml)
+        ssml = providers["speech"].podcast_script_to_ssml(podcast_response.podcast)
+        speech_response = providers["speech"].text_to_speech(ssml)
 
         status.update(
-            label="Calculating Azure costs...",
+            label="Calculating costs...",
             state="running",
             expanded=False,
         )
 
-        # Calculate costs
-        azure_document_intelligence_costs = calculate_azure_document_intelligence_costs(
-            pages=document_response.pages
-        )
-        azure_openai_costs = calculate_azure_openai_costs(
-            input_tokens=podcast_response.usage.prompt_tokens,
-            output_tokens=podcast_response.usage.completion_tokens,
-        )
-
-        azure_ai_speech_costs = calculate_azure_ai_speech_costs(
-            characters=sum(len(item["message"]) for item in podcast_script)
+        # Get costs from provider responses
+        total_cost = (
+            document_response.cost + podcast_response.cost + speech_response.cost
         )
 
         status.update(label="Finished", state="complete", expanded=False)
@@ -184,26 +192,29 @@ if uploaded_file and generate_podcast:
 if final_audio:
     status_container.empty()
 
-    # Create three tabs
-    audio_tab, transcript_tab, costs_tab = st.tabs(["Audio", "Transcript", "Costs"])
+    # Create four tabs
+    audio_tab, transcript_tab, ssml_tab, costs_tab = st.tabs(
+        ["Audio", "Transcript", "SSML", "Costs"]
+    )
 
     with audio_tab:
-        st.audio(audio, format="audio/wav")
+        st.audio(speech_response.audio, format="audio/wav")
 
     with transcript_tab:
         podcast_script = podcast_response.podcast["script"]
         for item in podcast_script:
-            st.markdown(f"**{item['name']}**: {item['message']}")
+            st.markdown(f"**{item['speaker']}**: {item['message']}")
+
+    with ssml_tab:
+        # Pretty print the XML/SSML for better readability
+        pretty_ssml = xml.dom.minidom.parseString(ssml).toprettyxml(indent="  ")
+        st.code(pretty_ssml, language="xml")
 
     with costs_tab:
-        st.markdown(
-            f"**Azure Document Intelligence**: ${azure_document_intelligence_costs:.2f}"
-        )
-        st.markdown(f"**Azure OpenAI Service**: ${azure_openai_costs:.2f}")
-        st.markdown(f"**Azure AI Speech**: ${azure_ai_speech_costs:.2f}")
-        st.markdown(
-            f"**Total costs**: ${(azure_ai_speech_costs + azure_openai_costs + azure_document_intelligence_costs):.2f}"
-        )
+        st.markdown(f"**Document Processing**: ${document_response.cost:.2f}")
+        st.markdown(f"**LLM Processing**: ${podcast_response.cost:.2f}")
+        st.markdown(f"**Speech Synthesis**: ${speech_response.cost:.2f}")
+        st.markdown(f"**Total costs**: ${total_cost:.2f}")
 
 # Footer
 st.divider()
