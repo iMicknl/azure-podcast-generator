@@ -16,8 +16,23 @@ class Provider(ABC):
         pass
 
     @classmethod
+    def render_default_ui(cls, st) -> dict[str, Any]:
+        """Render provider-specific default UI elements using Streamlit.
+
+        This method should render required inputs that are needed for the provider
+        to function, such as file uploads for document providers or titles for LLM providers.
+
+        Args:
+            st: The Streamlit module to use for rendering UI elements
+
+        Returns:
+            Dict of option names to their values selected in the UI
+        """
+        return {}
+
+    @classmethod
     def render_options_ui(cls, st) -> dict[str, Any]:
-        """Render provider-specific options UI using Streamlit.
+        """Render provider-specific advanced options UI using Streamlit.
 
         Args:
             st: The Streamlit module to use for rendering UI elements

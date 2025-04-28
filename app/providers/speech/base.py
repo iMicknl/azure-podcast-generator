@@ -2,6 +2,7 @@
 
 from abc import abstractmethod
 from dataclasses import dataclass
+from typing import Any
 
 from providers.base import Provider
 from providers.llm.base import PodcastContent
@@ -41,3 +42,19 @@ class SpeechProvider(Provider):
             SSML string for speech synthesis
         """
         pass
+
+    @classmethod
+    def render_default_ui(cls, st) -> dict[str, Any]:
+        """Render speech provider-specific default UI elements using Streamlit.
+
+        This should include any speech-specific options needed for
+        the basic functionality of the provider.
+
+        Args:
+            st: The Streamlit module to use for rendering UI elements
+
+        Returns:
+            Dict of options selected in the UI
+        """
+
+        return {}

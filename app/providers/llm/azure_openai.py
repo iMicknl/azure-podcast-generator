@@ -120,12 +120,6 @@ class AzureOpenAIProvider(LLMProvider):
         col1, col2 = st.columns(2)
 
         with col1:
-            options["speaker_1"] = st.text_input(
-                "Speaker 1 Name",
-                value="Andrew",
-                help="Name of the first speaker in the podcast script",
-            )
-
             options["temperature"] = st.slider(
                 "Temperature",
                 min_value=0.0,
@@ -135,12 +129,6 @@ class AzureOpenAIProvider(LLMProvider):
                 help="Controls randomness in the generation. Higher values make the output more random, lower values make it more focused and deterministic.",
             )
         with col2:
-            options["speaker_2"] = st.text_input(
-                "Speaker 2 Name",
-                value="Ava",
-                help="Name of the second speaker in the podcast script",
-            )
-
             options["max_tokens"] = st.number_input(
                 "Max Tokens",
                 min_value=1000,
@@ -156,16 +144,27 @@ class AzureOpenAIProvider(LLMProvider):
         self,
         document: str,
         title: str = "AI in Action",
+        voice_1: str = None,
+        voice_2: str = None,
+        max_tokens: int = None,
     ) -> PodcastScriptResponse:
         """Convert document to podcast script using Azure OpenAI.
 
         Args:
             document: The document content as string
             title: The podcast title
+            voice_1: The first speaker name (optional, uses provider's speaker_1 if not provided)
+            voice_2: The second speaker name (optional, uses provider's speaker_2 if not provided)
+            max_tokens: Maximum tokens for generation (optional, uses provider's max_tokens if not provided)
 
         Returns:
             PodcastScriptResponse with generated podcast script and usage metrics
         """
+        # Use provided values or fall back to instance values
+        speaker_1 = voice_1 or self.speaker_1
+        speaker_2 = voice_2 or self.speaker_2
+        max_tokens = max_tokens or self.max_tokens
+
         # Authenticate via API key (not advised for production)
         if self.api_key:
             client = AzureOpenAI(
@@ -184,9 +183,7 @@ class AzureOpenAIProvider(LLMProvider):
             messages=[
                 {
                     "role": "system",
-                    "content": PROMPT.format(
-                        speaker_1=self.speaker_1, speaker_2=self.speaker_2
-                    ),
+                    "content": PROMPT.format(speaker_1=speaker_1, speaker_2=speaker_2),
                 },
                 # Wrap the document in <documents> tag for Prompt Shield Indirect attacks
                 # https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=warning%2Cindirect%2Cpython-new#embedding-documents-in-your-prompt
@@ -198,7 +195,7 @@ class AzureOpenAIProvider(LLMProvider):
             model=self.model,
             temperature=self.temperature,
             response_format={"type": "json_schema", "json_schema": JSON_SCHEMA},
-            max_tokens=self.max_tokens,
+            max_tokens=max_tokens,
         )
 
         message = chat_completion.choices[0].message.content

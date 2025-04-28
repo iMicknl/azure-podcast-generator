@@ -61,25 +61,25 @@ class AzureSpeechProvider(SpeechProvider):
     @classmethod
     def render_options_ui(cls, st: streamlit) -> dict[str, Any]:
         """Render Azure AI Speech specific options using Streamlit widgets."""
-        st.markdown("##### Speech")
+        st.markdown("##### Voice Selection")
 
         options = {}
         col1, col2 = st.columns(2)
 
         with col1:
             options["voice_1"] = st.selectbox(
-                "Voice 1",
+                "Voice for Speaker 1",
                 options=list(AZURE_HD_VOICES.keys()),
                 index=list(AZURE_HD_VOICES.keys()).index("Andrew"),
-                help="The first voice used in the podcast",
+                help="The voice that will be used for Speaker 1 in the podcast",
             )
 
         with col2:
             options["voice_2"] = st.selectbox(
-                "Voice 2",
+                "Voice for Speaker 2",
                 options=list(AZURE_HD_VOICES.keys()),
                 index=list(AZURE_HD_VOICES.keys()).index("Ava"),
-                help="The second voice used in the podcast",
+                help="The voice that will be used for Speaker 2 in the podcast",
             )
 
         return options

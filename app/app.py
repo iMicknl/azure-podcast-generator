@@ -94,24 +94,11 @@ config = Configuration(
     speech_provider=speech_provider,
 )
 
-# Podcast title input
-podcast_title = form_container.text_input("Podcast Title", value="AI in Action")
-
-# Create a temporary instance of the document provider to access its properties
-temp_provider = doc_provider()
-# Get supported file types from the selected document provider
-supported_file_types = getattr(
-    temp_provider,
-    "supported_file_types",
-    ["pdf", "doc", "docx", "ppt", "pptx", "txt", "md"],
-)
-
-# File upload
-uploaded_file = form_container.file_uploader(
-    "Upload your document",
-    accept_multiple_files=False,
-    type=supported_file_types,
-)
+# Provider default options
+provider_default_options = {}
+provider_default_options["document"] = doc_provider.render_default_ui(form_container)
+provider_default_options["llm"] = llm_provider.render_default_ui(form_container)
+provider_default_options["speech"] = speech_provider.render_default_ui(form_container)
 
 # Advanced options expander
 provider_options = {}
@@ -119,6 +106,11 @@ with form_container.expander("Advanced options", expanded=False):
     provider_options["document"] = doc_provider.render_options_ui(st)
     provider_options["llm"] = llm_provider.render_options_ui(st)
     provider_options["speech"] = speech_provider.render_options_ui(st)
+
+# Get uploaded file from document provider default options
+uploaded_file = provider_default_options["document"].get("uploaded_file")
+# Get podcast title from LLM provider default options
+podcast_title = provider_default_options["llm"].get("podcast_title")
 
 # Submit button
 generate_podcast = form_container.button(
@@ -129,8 +121,10 @@ if uploaded_file and generate_podcast:
     bytes_data = uploaded_file.read()
     form.empty()
 
-    # Create provider instances with the UI-configured options
-    providers = config.create_providers(**provider_options)
+    # Create provider instances with the UI-configured options (both default and advanced)
+    providers = config.create_providers(
+        default_options=provider_default_options, **provider_options
+    )
 
     status_container = st.empty()
     with status_container.status(
@@ -155,7 +149,11 @@ if uploaded_file and generate_podcast:
 
         # Convert input document to podcast script
         podcast_response = providers["llm"].document_to_podcast_script(
-            document=document_response.markdown, title=podcast_title
+            document=document_response.markdown,
+            title=podcast_title,
+            voice_1=provider_default_options["llm"].get("speaker_1", "Andrew"),
+            voice_2=provider_default_options["llm"].get("speaker_2", "Ava"),
+            max_tokens=provider_options.get("llm", {}).get("max_tokens"),
         )
 
         podcast_script = podcast_response.podcast["script"]

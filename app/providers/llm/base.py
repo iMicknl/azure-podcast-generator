@@ -2,7 +2,7 @@
 
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import Any, TypedDict
 
 from providers.base import Provider
 
@@ -37,6 +37,40 @@ class PodcastScriptResponse:
 
 class LLMProvider(Provider):
     """Base class for LLM providers."""
+
+    @classmethod
+    def render_default_ui(cls, st) -> dict[str, Any]:
+        """Render LLM provider-specific default UI elements using Streamlit.
+
+        Args:
+            st: The Streamlit module to use for rendering UI elements
+
+        Returns:
+            Dict containing podcast_title and speaker names
+        """
+        options = {}
+
+        # Podcast title input
+        options["podcast_title"] = st.text_input("Podcast Title", value="AI in Action")
+
+        # Speaker names in two columns
+        col1, col2 = st.columns(2)
+
+        with col1:
+            options["speaker_1"] = st.text_input(
+                "Speaker 1 Name",
+                value="Andrew",
+                help="Name of the first speaker in the podcast script",
+            )
+
+        with col2:
+            options["speaker_2"] = st.text_input(
+                "Speaker 2 Name",
+                value="Ava",
+                help="Name of the second speaker in the podcast script",
+            )
+
+        return options
 
     @abstractmethod
     def document_to_podcast_script(

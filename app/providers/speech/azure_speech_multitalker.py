@@ -1,6 +1,7 @@
 """Basic speech provider implementation with simple SSML support."""
 
 import os
+from typing import Any
 
 import azure.cognitiveservices.speech as speechsdk
 from const import LOGGER
@@ -116,3 +117,13 @@ class AzureSpeechMultitalker(SpeechProvider):
         self.cost = 30 * (character_count / 1_000_000)
 
         return ssml
+
+    @classmethod
+    def render_options_ui(cls, st) -> dict[str, Any]:
+        """Render multitalker voice options."""
+        # No additional options for multitalker since it uses a fixed voice pair
+        st.markdown("##### MultiTalker Voice")
+        st.info(
+            "The MultiTalker voice combines Ava and Andrew voices into a single audio stream with more natural conversation flow."
+        )
+        return {}
