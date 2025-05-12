@@ -17,6 +17,11 @@ https://github.com/user-attachments/assets/d9c3b218-1989-42af-adfb-442b450715fe
 
 You can run the application locally or deploy it to Azure, such as on Azure Container Apps. For development, the easiest approach is to use the included [Dev Container](https://code.visualstudio.com/docs/devcontainers/containers), which installs all necessary dependencies and tools to get you started.
 
+## Podcast Style & Tone
+
+The Azure Podcast Generator lets you customize the style and tone of your generated podcast. These parameters control the structure, storytelling approach, and delivery style of your podcast script.
+
+See the full list of options and their effects in [docs/PODCAST_STYLE_AND_TONE.md](docs/PODCAST_STYLE_AND_TONE.md).
 
 ### Prerequisites
 
